@@ -1,0 +1,11 @@
+# Copyright (C) 2016 and later: Unicode, Inc. and others.
+# License & terms of use: http://www.unicode.org/copyright.html
+Makefile
+*.o
+*.d
+bin/
+*.1
+*.8
+*.ao
+*.dylib
+lib/
