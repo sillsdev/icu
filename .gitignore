@@ -9,6 +9,7 @@
 *.d
 Debug/
 Release/
+source/allinone/allinone.VC.*
 source/data/out
 source/data/packagedata
 source/data/pkgdataMakefile
@@ -767,3 +768,4 @@ source/tools/icuinfo/x86
 *.suo
 *.bak
 *.vcxproj.user
+*~
