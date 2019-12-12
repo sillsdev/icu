@@ -1,6 +1,8 @@
 icu4c/bin
 icu4c/bin64
 icu4c/include
+icu4c/installx86_64
+icu4c/installi686
 icu4c/lib
 icu4c/lib64
 icu4c/source/Doxyfile
@@ -11,6 +13,7 @@ icu4c/source/allinone/*.opensdf
 icu4c/source/allinone/*.opt
 icu4c/source/allinone/*.sdf
 icu4c/source/allinone/*.suo
+icu4c/source/allinone/allinone.VC.*
 icu4c/source/allinone/ipch
 icu4c/source/autom4te.cache
 icu4c/source/bin
@@ -984,3 +987,14 @@ tools/unicode/c/genuca/release
 tools/unicode/c/genuca/x64
 tools/unicode/c/genuca/x86
 tools/unicodetools/com/ibm/rbm/lib
+out/
+*.o
+*.d
+Debug/
+Release/
+*.sdf
+*.opensdf
+*.suo
+*.bak
+*.vcxproj.user
+*~
