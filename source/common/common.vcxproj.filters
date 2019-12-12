@@ -541,6 +541,7 @@
     <ClCompile Include="listformatter.cpp">
       <Filter>formatting</Filter>
     </ClCompile>
+    <ClCompile Include="silmods.c" />
     <ClCompile Include="messagepattern.cpp">
       <Filter>formatting</Filter>
     </ClCompile>
@@ -850,6 +851,7 @@
     <ClInclude Include="uchar_props_data.h">
       <Filter>properties &amp; sets</Filter>
     </ClInclude>
+    <ClInclude Include="silmods.h" />
     <ClInclude Include="messageimpl.h">
       <Filter>formatting</Filter>
     </ClInclude>
