@@ -1,5 +1,5 @@
 #!groovy
-// Copyright (c) 2016-2017 SIL International
+// Copyright (c) 2016-2020 SIL International
 // This software is licensed under the MIT license (http://opensource.org/licenses/MIT)
 
 ansiColor('xterm') {
@@ -23,7 +23,7 @@ ansiColor('xterm') {
 
 		try {
 			node('windows && supported') {
-				def msbuild = tool 'msbuild15'
+				def msbuild = tool 'msbuild16'
 				def git = tool(name: 'Default', type: 'git')
 
 				stage('Checkout') {
@@ -33,7 +33,7 @@ ansiColor('xterm') {
 						"${git}" fetch origin --tags
 						"""
 
-					def uvernum = readFile 'source/common/unicode/uvernum.h'
+					def uvernum = readFile 'icu4c/source/common/unicode/uvernum.h'
 					def IcuVersion = (uvernum =~ "#define U_ICU_VERSION_MAJOR_NUM ([0-9]+)")[0][1]
 					def IcuMinor = (uvernum =~ "#define U_ICU_VERSION_MINOR_NUM ([0-9]+)")[0][1]
 					def PreRelease = isPR ? "-${BRANCH_NAME}" :
@@ -43,29 +43,31 @@ ansiColor('xterm') {
 					currentBuild.displayName = PkgVersion
 				}
 
-				dir("nugetpackage") {
-					dir("build") {
-						stage('Build ICU') {
-							echo "Compiling ICU"
-							bat """
-							"${msbuild}" /t:Build
-							"""
+				dir("icu4c") {
+					dir("nugetpackage") {
+						dir("build") {
+							stage('Build ICU') {
+								echo "Compiling ICU"
+								bat """
+								"${msbuild}" /t:Build
+								"""
+							}
+
+							stage('Pack nuget') {
+								echo "Creating nuget package ${PkgVersion}"
+								bat """
+								"${msbuild}" /t:BuildPackage /p:PkgVersion=${PkgVersion}
+								"""
+							}
+						} // build
+
+						if (!isPR) {
+							archiveArtifacts "*.nupkg"
 						}
 
-						stage('Pack nuget') {
-							echo "Creating nuget package ${PkgVersion}"
-							bat """
-							"${msbuild}" /t:BuildPackage /p:PkgVersion=${PkgVersion}
-							"""
-						}
-					}
-
-					if (!isPR) {
-						archiveArtifacts "*.nupkg"
-					}
-
-					currentBuild.result = "SUCCESS"
-				}
+						currentBuild.result = "SUCCESS"
+					} // nugetpackage
+				} // icu4c
 
 				stage('Cleanup') {
 					echo "Free disk space by removing all files except .git repo"
