@@ -998,3 +998,4 @@ Release/
 *.bak
 *.vcxproj.user
 *~
+.vs/
