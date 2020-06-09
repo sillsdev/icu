@@ -540,6 +540,24 @@
     <ClCompile Include="uregion.cpp">
       <Filter>formatting</Filter>
     </ClCompile>
+    <ClCompile Include="nounit.cpp" />
+    <ClCompile Include="number_affixutils.cpp" />
+    <ClCompile Include="number_compact.cpp" />
+    <ClCompile Include="number_decimalquantity.cpp" />
+    <ClCompile Include="number_decimfmtprops.cpp" />
+    <ClCompile Include="number_fluent.cpp" />
+    <ClCompile Include="number_formatimpl.cpp" />
+    <ClCompile Include="number_grouping.cpp" />
+    <ClCompile Include="number_integerwidth.cpp" />
+    <ClCompile Include="number_longnames.cpp" />
+    <ClCompile Include="number_modifiers.cpp" />
+    <ClCompile Include="number_notation.cpp" />
+    <ClCompile Include="number_padding.cpp" />
+    <ClCompile Include="number_patternmodifier.cpp" />
+    <ClCompile Include="number_patternstring.cpp" />
+    <ClCompile Include="number_rounding.cpp" />
+    <ClCompile Include="number_scientific.cpp" />
+    <ClCompile Include="number_stringbuilder.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="bocsu.cpp">
@@ -1173,12 +1191,6 @@
     <CustomBuild Include="unicode\msgfmt.h">
       <Filter>formatting</Filter>
     </CustomBuild>
-    <CustomBuild Include="unicode/nounit.h">
-      <Filter>formatting</Filter>
-    </CustomBuild>
-    <CustomBuild Include="/numberformatter.h">
-      <Filter>formatting</Filter>
-    </CustomBuild>
     <CustomBuild Include="unicode\numfmt.h">
       <Filter>formatting</Filter>
     </CustomBuild>
@@ -1317,5 +1329,7 @@
     <CustomBuild Include="unicode\uformattable.h">
       <Filter>formatting</Filter>
     </CustomBuild>
+    <CustomBuild Include="unicode\nounit.h" />
+    <CustomBuild Include="unicode\numberformatter.h" />
   </ItemGroup>
 </Project>
