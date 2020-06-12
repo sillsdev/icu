@@ -10,7 +10,7 @@
 		<BuildCounter Condition="'$(BuildCounter)' == ''">0</BuildCounter>
 		<NuGetBuildDir>$(MSBuildProjectDirectory)/../NuGetBuild</NuGetBuildDir>
 		<PreRelease Condition="'$(PreRelease)' == ''"></PreRelease>
-		<PkgVersion Condition="'$(PkgVersion)' == ''">59.1.$(BuildCounter)$(PreRelease)</PkgVersion>
+		<PkgVersion Condition="'$(PkgVersion)' == ''">62.1.$(BuildCounter)$(PreRelease)</PkgVersion>
 	</PropertyGroup>
 
 	<ItemGroup>
@@ -68,6 +68,7 @@
 			<BinArtifacts Include='$(RootDir)\bin\*.exe'/>
 			<BinArtifacts64 Include='$(RootDir)\bin64\*.exe'/>
 			<BinNuGetAssets Include='$(NuGetOutputDir)/assets/bin/**/*'/>
+			<License Include='$(RootDir)\LICENSE' />
 		</ItemGroup>
 
 		<!-- Libraries -->
@@ -76,14 +77,19 @@
 		<Copy SourceFiles="@(LibArtifacts64)" DestinationFolder="$(NuGetBuildDir)\lib\$(NuGetRuntimeFolderWinX64)"/>
 		<Copy SourceFiles="@(LibNuGetAssets)"
 			DestinationFiles="@(LibNuGetAssets->'$(NuGetBuildDir)\lib\%(RecursiveDir)%(Filename)%(Extension)')" />
+		<Copy SourceFiles="@(License)" DestinationFiles="$(NuGetBuildDir)\lib\LICENSE.md" />
+
 		<Exec Command="$(MSBuildProjectDirectory)\nuget pack -Version $(PkgVersion) -OutputDirectory $(NuGetOutputDir) icu-win-full-lib.nuspec"
 			WorkingDirectory="$(NuGetBuildDir)\lib"/>
+
 		<!-- Binaries -->
 		<MakeDir Directories="$(NuGetBuildDir)\bin"/>
 		<Copy SourceFiles="@(BinArtifacts)" DestinationFolder="$(NuGetBuildDir)\bin\build\win-x86"/>
 		<Copy SourceFiles="@(BinArtifacts64)" DestinationFolder="$(NuGetBuildDir)\bin\build\win-x64"/>
 		<Copy SourceFiles="@(BinNuGetAssets)"
 			DestinationFiles="@(BinNuGetAssets->'$(NuGetBuildDir)\bin\%(RecursiveDir)%(Filename)%(Extension)')" />
+		<Copy SourceFiles="@(License)" DestinationFiles="$(NuGetBuildDir)\bin\LICENSE.md" />
+
 		<Exec Command="$(MSBuildProjectDirectory)\nuget pack -Version $(PkgVersion) -OutputDirectory $(NuGetOutputDir) icu-win-full-bin.nuspec"
 			WorkingDirectory="$(NuGetBuildDir)\bin"/>
 	</Target>
