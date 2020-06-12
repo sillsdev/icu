@@ -10,7 +10,7 @@
 		<BuildCounter Condition="'$(BuildCounter)' == ''">0</BuildCounter>
 		<NuGetBuildDir>$(MSBuildProjectDirectory)/../NuGetBuild</NuGetBuildDir>
 		<PreRelease Condition="'$(PreRelease)' == ''"></PreRelease>
-		<PkgVersion Condition="'$(PkgVersion)' == ''">59.1.$(BuildCounter)$(PreRelease)</PkgVersion>
+		<PkgVersion Condition="'$(PkgVersion)' == ''">62.1.$(BuildCounter)$(PreRelease)</PkgVersion>
 	</PropertyGroup>
 
 	<ItemGroup>
@@ -22,40 +22,32 @@
 		</PlatformToBuild>
 	</ItemGroup>
 
-	<Import Project="NuGet.targets"/>
+	<Import Project="NuGet.targets" />
 
 	<Target Name="Build">
-		<CallTarget Targets="Clean"/>
-		<CallTarget Targets="Compile"/>
+		<CallTarget Targets="Clean" />
+		<CallTarget Targets="Compile" />
 	</Target>
 
 	<Target Name="Compile" DependsOnTargets="CheckPrerequisites">
 		<Message Text="Building $(Solution) for 'Configuration=$(Configuration);Platform=%(PlatformToBuild.Platform)'" />
-		<MSBuild Projects="$(SolutionDir)/$(Solution)"
-			Targets="Rebuild"
-			Properties="Configuration=$(Configuration);Platform=%(PlatformToBuild.Platform)" />
+		<MSBuild Projects="$(SolutionDir)/$(Solution)" Targets="Rebuild" Properties="Configuration=$(Configuration);Platform=%(PlatformToBuild.Platform)" />
 	</Target>
 
 	<Target Name="Clean" DependsOnTargets="CleanNuGet">
 		<Message Text="Deleting object files matching: '$(SourceDir)/**/%(PlatformToBuild.Identity)/**/*'" />
 		<ItemGroup>
-			<ExistingObjectFiles
-				Include="$(SourceDir)/**/%(PlatformToBuild.Identity)/**/*"
-				Exclude="$(RootDir)/.hg/**/*;$(RootDir)/.git/**/*" />
+			<ExistingObjectFiles Include="$(SourceDir)/**/%(PlatformToBuild.Identity)/**/*" Exclude="$(RootDir)/.hg/**/*;$(RootDir)/.git/**/*" />
 		</ItemGroup>
-		<Delete Condition="'$(OS)'=='Windows_NT'"
-			 Files="@(ExistingObjectFiles)" />
-		<Exec Condition="'$(OS)'!='Windows_NT'"
-			Command="find $(SourceDir) -name %(PlatformToBuild.Identity) -type d -print0 | xargs -0 rm -rf"
-			WorkingDirectory="$(RootDir)" />
+		<Delete Files="@(ExistingObjectFiles)" />
 	</Target>
 
 	<Target Name="CleanNuGet">
 		<ItemGroup>
-			<NuGetPackage Include="$(MSBuildProjectDirectory)/../*.nupkg"/>
+			<NuGetPackage Include="$(MSBuildProjectDirectory)/../*.nupkg" />
 		</ItemGroup>
 
-		<Delete Files="@(NuGetPackage)"/>
+		<Delete Files="@(NuGetPackage)" />
 		<RemoveDir Directories="$(NuGetBuildDir)" />
 	</Target>
 
@@ -69,6 +61,7 @@
 			<Artifacts Include='$(RootDir)\bin\icudt*.dll;$(RootDir)\bin\icuin*.dll;$(RootDir)\bin\icuuc*.dll'/>
 			<Artifacts64 Include='$(RootDir)\bin64\icudt*.dll;$(RootDir)\bin64\icuin*.dll;$(RootDir)\bin64\icuuc*.dll'/>
 			<NuGetAssets Include='$(MSBuildProjectDirectory)/../assets/**/*'/>
+			<License Include='$(RootDir)\LICENSE' />
 		</ItemGroup>
 
 		<MakeDir Directories="$(NuGetBuildDir)"/>
@@ -76,6 +69,7 @@
 		<Copy SourceFiles="@(Artifacts64)" DestinationFolder="$(NuGetBuildDir)\$(NuGetRuntimeFolderWinX64)"/>
 		<Copy SourceFiles="@(NuGetAssets)"
 			DestinationFiles="@(NuGetAssets->'$(NuGetBuildDir)\%(RecursiveDir)%(Filename)%(Extension)')" />
+		<Copy SourceFiles="@(License)" DestinationFiles="$(NuGetBuildDir)\LICENSE.md" />
 		<Exec Command="$(MSBuildProjectDirectory)\nuget pack -Version $(PkgVersion) -OutputDirectory $(NuGetOutputDir) icu-win-min.nuspec"
 			WorkingDirectory="$(NuGetBuildDir)"/>
 	</Target>

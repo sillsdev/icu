@@ -216,9 +216,6 @@
     <ClCompile Include="ulistfmttest.c">
       <Filter>formatting</Filter>
     </ClCompile>
-    <ClInclude Include="unumberformattertst.c">
-      <Filter>formatting</Filter>
-    </ClInclude>
     <ClCompile Include="cldrtest.c">
       <Filter>locales &amp; resources</Filter>
     </ClCompile>
@@ -309,6 +306,7 @@
     <ClCompile Include="cbiditransformtst.c">
       <Filter>bidi</Filter>
     </ClCompile>
+    <ClCompile Include="unumberformattertst.c" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="cbiditst.h">

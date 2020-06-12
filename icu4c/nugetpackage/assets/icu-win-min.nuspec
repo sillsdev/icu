@@ -4,9 +4,9 @@
         <id>Icu4c.Win.Min</id>
         <version>$version$</version>
         <authors>SIL International</authors>
-        <copyright>Copyright (c) 2016-2018 SIL International</copyright>
-        <licenseUrl>https://github.com/sillsdev/icu4c/blob/trunk/license.html</licenseUrl>
-        <projectUrl>https://github.com/sillsdev/icu4c</projectUrl>
+        <copyright>Copyright (c) 2016-2020 SIL International</copyright>
+        <license type="file">LICENSE.md</license>
+        <projectUrl>https://github.com/sillsdev/icu</projectUrl>
         <requireLicenseAcceptance>false</requireLicenseAcceptance>
         <tags>native</tags>
         <summary>ICU - International Components for Unicode</summary>
