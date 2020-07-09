@@ -4,9 +4,9 @@
 		<id>Icu4c.Win.Fw.Bin</id>
 		<version>$version$</version>
 		<authors>SIL International</authors>
-		<copyright>Copyright (c) 2016-2017 SIL International</copyright>
-		<licenseUrl>https://github.com/sillsdev/icu4c/blob/trunk/license.html</licenseUrl>
-		<projectUrl>https://github.com/sillsdev/icu4c</projectUrl>
+		<copyright>Copyright (c) 2016-2020 SIL International</copyright>
+		<licenseUrl>https://github.com/sillsdev/icu/blob/FieldWorks/license.html</licenseUrl>
+		<projectUrl>https://github.com/sillsdev/icu</projectUrl>
 		<requireLicenseAcceptance>false</requireLicenseAcceptance>
 		<tags>native</tags>
 		<summary>ICU - International Components for Unicode</summary>
@@ -20,7 +20,9 @@ The major version number of the nuget package corresponds to the ICU release.
 		<dependencies>
 			<dependency id="Icu4c.Win.Fw.Lib" version="[$version$]"/>
 		</dependencies>
-
+		<releaseNotes>
+54.1.13 - Binaries will be copied to win-x64/win-x86 to improve compatibility with WIX (cf. https://github.com/sillsdev/icu-dotnet/issues/51).
+		</releaseNotes>
 		<references/>
 	</metadata>
 </package>

@@ -1,13 +1,13 @@
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
 	<PropertyGroup>
-		<RuntimesDirectory>$(MSBuildThisFileDirectory)\..\runtimes</RuntimesDirectory>
-		<RuntimeWinX86>$(RuntimesDirectory)\win7-x86\native</RuntimeWinX86>
-		<RuntimeWinX64>$(RuntimesDirectory)\win7-x64\native</RuntimeWinX64>
+		<IcuFwRuntimesDirectory>$(MSBuildThisFileDirectory)\..\runtimes</IcuFwRuntimesDirectory>
+		<IcuFwRuntimeWinX86>$(IcuFwRuntimesDirectory)\win7-x86\native</IcuFwRuntimeWinX86>
+		<IcuFwRuntimeWinX64>$(IcuFwRuntimesDirectory)\win7-x64\native</IcuFwRuntimeWinX64>
 	</PropertyGroup>
 
 	<ItemGroup Condition="'$(OS)'=='Windows_NT'">
-		<IcuLibsX86 Include="$(RuntimeWinX86)\icu*.dll" />
-		<IcuLibsX64 Include="$(RuntimeWinX64)\icu*.dll" />
+		<IcuLibsX86 Include="$(IcuFwRuntimeWinX86)\icu*.dll" />
+		<IcuLibsX64 Include="$(IcuFwRuntimeWinX64)\icu*.dll" />
 
 		<None Include="@(IcuLibsX86)">
 			<Link>lib\win-x86\%(FileName)%(Extension)</Link>
