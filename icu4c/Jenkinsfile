@@ -55,6 +55,8 @@ ansiColor('xterm') {
 							stage('Build ICU') {
 								echo "Compiling ICU"
 								bat """
+								dir
+								dir ..\..
 								"${msbuild}" /t:Build
 								"""
 							}
