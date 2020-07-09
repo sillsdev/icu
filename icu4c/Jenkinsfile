@@ -56,7 +56,7 @@ ansiColor('xterm') {
 								echo "Compiling ICU"
 								bat """
 								dir
-								dir ..\..
+								dir ..\\..
 								"${msbuild}" /t:Build
 								"""
 							}
