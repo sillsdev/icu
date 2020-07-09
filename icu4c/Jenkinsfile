@@ -50,7 +50,7 @@ ansiColor('xterm') {
 						currentBuild.displayName = PkgVersion
 					}
 
-					dir("../nugetpackage") {
+					dir("nugetpackage") {
 						dir("build") {
 							stage('Build ICU') {
 								echo "Compiling ICU"
