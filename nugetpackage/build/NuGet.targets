@@ -3,7 +3,7 @@
 	<PropertyGroup>
 		<SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">$(MSBuildProjectDirectory)/../</SolutionDir>
 		<SolutionPath Condition="$(SolutionPath) == '' Or $(SolutionPath) == '*Undefined*'">$(SolutionDir)/$(Solution)</SolutionPath>
-		<NuGetUrl>https://nuget.org/NuGet.exe</NuGetUrl>
+		<NuGetUrl>https://dist.nuget.org/win-x86-commandline/latest/nuget.exe</NuGetUrl>
 
 		<!-- Enable the restore command to run before builds -->
 		<RestorePackages Condition="  '$(RestorePackages)' == '' ">true</RestorePackages>
@@ -15,21 +15,12 @@
 		<DownloadNuGetExe Condition=" '$(DownloadNuGetExe)' == '' ">true</DownloadNuGetExe>
 	</PropertyGroup>
 
-	<ItemGroup Condition=" '$(PackageSources)' == '' ">
-		<!-- Package sources used to restore packages. -->
-		<!-- The official NuGet package source (https://nuget.org/api/v2/) will be excluded if package sources are specified and it does not appear in the list -->
-		<PackageSource Include="https://nuget.org/api/v2/" />
-		<PackageSource Include="https://build.palaso.org/guestAuth/app/nuget/v1/FeedService.svc/" />
-	</ItemGroup>
-
 	<PropertyGroup>
 		<NuGetToolsPath>$(MSBuildThisFileDirectory)</NuGetToolsPath>
 		<PackagesConfig>$(ProjectDir)packages.config</PackagesConfig>
 
 		<!-- NuGet command -->
-		<NuGetExePath Condition=" '$(NuGetExePath)' == '' ">$(NuGetToolsPath)/NuGet.exe</NuGetExePath>
-
-		<PackageSources Condition=" $(PackageSources) == '' ">@(PackageSource)</PackageSources>
+		<NuGetExePath Condition=" '$(NuGetExePath)' == '' ">$(NuGetToolsPath)/nuget.exe</NuGetExePath>
 
 		<NuGetCommand Condition=" '$(OS)' == 'Windows_NT'">"$(NuGetExePath)"</NuGetCommand>
 		<NuGetCommand Condition=" '$(OS)' != 'Windows_NT' ">mono --runtime=v4.0.30319 $(NuGetExePath)</NuGetCommand>
@@ -57,9 +48,9 @@
 	</Target>
 
 	<Target Name="RestorePackages" DependsOnTargets="CheckPrerequisites">
-		<Exec Command='$(NuGetCommand) restore -source "$(PackageSources)" "$(SolutionPath)"'
+		<Exec Command='$(NuGetCommand) restore "$(SolutionPath)"'
 			Condition="Exists('$(SolutionPath)')"/>
-		<Exec Command='$(NuGetCommand) restore -source "$(PackageSources)" -SolutionDirectory "$(SolutionDir)" "%(PackageConfigs.FullPath)"'
+		<Exec Command='$(NuGetCommand) restore -SolutionDirectory "$(SolutionDir)" "%(PackageConfigs.FullPath)"'
 			Condition="!Exists('$(SolutionPath)')"/>
 	</Target>
 
@@ -81,7 +72,11 @@
 				try {
 					OutputFilename = Path.GetFullPath(OutputFilename);
 
-					Log.LogMessage("Downloading latest version of NuGet.exe...");
+					Log.LogMessage("Downloading latest version of nuget.exe...");
+
+					ServicePointManager.SecurityProtocol |= SecurityProtocolType.Tls12;
+					Log.LogMessage("Enabled Protocols: " + ServicePointManager.SecurityProtocol);
+
 					WebClient webClient = new WebClient();
 					webClient.DownloadFile("$(NuGetUrl)", OutputFilename);
 
