@@ -35,10 +35,7 @@ ansiColor('xterm') {
 					def git = tool(name: 'Default', type: 'git')
 
 					stage('Checkout Windows') {
-						checkout([$class: 'GitSCM', branches: [[name: env.BRANCH_NAME]],
-							doGenerateSubmoduleConfigurations: false, extensions:
-								[[$class: 'CloneOption', depth: 1, noTags: false, shallow: true]],
-							userRemoteConfigs: [[url: 'https://github.com/sillsdev/icu']]])
+						checkout scm
 
 						def uvernum = readFile 'source/common/unicode/uvernum.h'
 						def IcuVersion = (uvernum =~ "#define U_ICU_VERSION_MAJOR_NUM ([0-9]+)")[0][1]
@@ -81,10 +78,7 @@ ansiColor('xterm') {
 					stage('Checkout Linux') {
 						dir('icu-fw')
 						{
-							checkout([$class: 'GitSCM', branches: [[name: env.BRANCH_NAME]],
-								doGenerateSubmoduleConfigurations: false, extensions:
-									[[$class: 'CloneOption', depth: 1, noTags: false, shallow: true]],
-								userRemoteConfigs: [[url: 'https://github.com/sillsdev/icu']]])
+							checkout scm
 
 							def uvernum = readFile 'source/common/unicode/uvernum.h'
 							def IcuVersion = (uvernum =~ "#define U_ICU_VERSION_MAJOR_NUM ([0-9]+)")[0][1]
