@@ -1,5 +1,5 @@
 #!groovy
-// Copyright (c) 2016-2018 SIL International
+// Copyright (c) 2016-2020 SIL International
 // This software is licensed under the MIT license (http://opensource.org/licenses/MIT)
 
 ansiColor('xterm') {
@@ -9,7 +9,7 @@ ansiColor('xterm') {
 			parameters([
 				choice(name: 'buildKind', choices: 'Continuous\nRelease\nReleaseCandidate',
 					description: 'Is this a continuous (pre-release) or a release build? Release builds for Linux are uploaded to llso:main.'),
-				string(name: 'DistributionsToPackage', defaultValue: 'bionic xenial trusty',
+				string(name: 'DistributionsToPackage', defaultValue: 'focal bionic',
 					description: 'The distributions to build packages for (separated by space)'),
 				string(name: 'ArchesToPackage', defaultValue: 'amd64 i386',
 					description: 'The architectures to build packages for (separated by space)')
@@ -19,10 +19,10 @@ ansiColor('xterm') {
 
 		// Set default. This is only needed for the first build.
 		def buildKindVar = params.buildKind ?: 'Continuous'
-		def supported_distros = 'bionic xenial trusty'
+		def supported_distros = 'focal bionic'
 
 		try {
-			isPR = BRANCH_NAME.startsWith("PR-") ? true : false
+			isPR = env.BRANCH_NAME.startsWith("PR-") ? true : false
 		} catch(err) {
 			isPR = false
 		}
@@ -35,7 +35,7 @@ ansiColor('xterm') {
 					def git = tool(name: 'Default', type: 'git')
 
 					stage('Checkout Windows') {
-						checkout([$class: 'GitSCM', branches: [[name: BRANCH_NAME]],
+						checkout([$class: 'GitSCM', branches: [[name: env.BRANCH_NAME]],
 							doGenerateSubmoduleConfigurations: false, extensions:
 								[[$class: 'CloneOption', depth: 1, noTags: false, shallow: true]],
 							userRemoteConfigs: [[url: 'https://github.com/sillsdev/icu']]])
@@ -43,9 +43,9 @@ ansiColor('xterm') {
 						def uvernum = readFile 'source/common/unicode/uvernum.h'
 						def IcuVersion = (uvernum =~ "#define U_ICU_VERSION_MAJOR_NUM ([0-9]+)")[0][1]
 						def IcuMinor = (uvernum =~ "#define U_ICU_VERSION_MINOR_NUM ([0-9]+)")[0][1]
-						def PreRelease = isPR ? "-${BRANCH_NAME}" :
+						def PreRelease = isPR ? "-${env.BRANCH_NAME}" :
 							(buildKindVar != 'Release' ? "-beta" : "")
-						PkgVersion = "${IcuVersion}.${IcuMinor}.${BUILD_NUMBER}${PreRelease}"
+						PkgVersion = "${IcuVersion}.${IcuMinor}.${env.BUILD_NUMBER}${PreRelease}"
 
 						currentBuild.displayName = PkgVersion
 					}
@@ -81,7 +81,7 @@ ansiColor('xterm') {
 					stage('Checkout Linux') {
 						dir('icu-fw')
 						{
-							checkout([$class: 'GitSCM', branches: [[name: BRANCH_NAME]],
+							checkout([$class: 'GitSCM', branches: [[name: env.BRANCH_NAME]],
 								doGenerateSubmoduleConfigurations: false, extensions:
 									[[$class: 'CloneOption', depth: 1, noTags: false, shallow: true]],
 								userRemoteConfigs: [[url: 'https://github.com/sillsdev/icu']]])
@@ -91,12 +91,12 @@ ansiColor('xterm') {
 							def IcuMinor = (uvernum =~ "#define U_ICU_VERSION_MINOR_NUM ([0-9]+)")[0][1]
 							String pr
 							try {
-								pr = isPR ? (BRANCH_NAME =~ "PR-([0-9]+)")[0][1] : ""
+								pr = isPR ? (env.BRANCH_NAME =~ "PR-([0-9]+)")[0][1] : ""
 							} catch(err) {
 								pr = ""
 							}
-							def Build = isPR ? "~PR${pr}.${BUILD_NUMBER}" :
-								(buildKindVar != 'Release' ? "~beta${BUILD_NUMBER}" : ".${BUILD_NUMBER}")
+							def Build = isPR ? "~PR${pr}.${env.BUILD_NUMBER}" :
+								(buildKindVar != 'Release' ? "~beta${env.BUILD_NUMBER}" : ".${env.BUILD_NUMBER}")
 							PkgVersion = "${IcuVersion}.${IcuMinor}.1${Build}"
 						}
 					}
