@@ -1,8 +1,10 @@
-/bin
-/bin64
-/include
-/lib
-/lib64
+bin/
+bin64/
+include/
+lib/
+lib64/
+obj/
+.vs/
 source/Doxyfile
 source/Makefile
 source/README
