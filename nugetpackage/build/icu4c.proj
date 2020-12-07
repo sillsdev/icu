@@ -72,6 +72,7 @@
 			<BinArtifacts Include='$(RootDir)\bin\*.exe'/>
 			<BinArtifacts64 Include='$(RootDir)\bin64\*.exe'/>
 			<BinNuGetAssets Include='$(NuGetOutputDir)/assets/bin/**/*'/>
+			<LicenseFile Include="$(RootDir)\license.txt" />
 		</ItemGroup>
 
 		<!-- Libraries -->
@@ -82,6 +83,7 @@
 			DestinationFiles="@(LibNuGetAssets->'$(NuGetBuildDir)\lib\%(RecursiveDir)%(Filename)%(Extension)')" />
 		<Copy SourceFiles="@(LibLibArtifacts)" DestinationFolder="$(NuGetBuildDir)\lib\build\native\lib" />
 		<Copy SourceFiles="@(LibIncludeArtifacts)" DestinationFiles="@(LibIncludeArtifacts->'$(NuGetBuildDir)\lib\build\native\include\%(RecursiveDir)%(Filename)%(Extension)')" />
+		<Copy SourceFiles="@(LicenseFile)" DestinationFolder="$(NuGetBuildDir)\lib\" />
 		<Exec Command="$(MSBuildProjectDirectory)\nuget pack -Version $(PkgVersion) -OutputDirectory $(NuGetOutputDir) icu-win-fw-lib.nuspec"
 			WorkingDirectory="$(NuGetBuildDir)\lib"/>
 		<!-- Binaries -->
@@ -90,6 +92,7 @@
 		<Copy SourceFiles="@(BinArtifacts64)" DestinationFolder="$(NuGetBuildDir)\bin\build\win-x64"/>
 		<Copy SourceFiles="@(BinNuGetAssets)"
 			DestinationFiles="@(BinNuGetAssets->'$(NuGetBuildDir)\bin\%(RecursiveDir)%(Filename)%(Extension)')" />
+		<Copy SourceFiles="@(LicenseFile)" DestinationFolder="$(NuGetBuildDir)\bin\" />
 		<Exec Command="$(MSBuildProjectDirectory)\nuget pack -Version $(PkgVersion) -OutputDirectory $(NuGetOutputDir) icu-win-fw-bin.nuspec"
 			WorkingDirectory="$(NuGetBuildDir)\bin"/>
 	</Target>

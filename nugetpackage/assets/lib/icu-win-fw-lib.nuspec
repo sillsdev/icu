@@ -5,7 +5,7 @@
 		<version>$version$</version>
 		<authors>SIL International</authors>
 		<copyright>Copyright (c) 2016-2020 SIL International</copyright>
-		<licenseUrl>https://github.com/sillsdev/icu/blob/FieldWorks/license.html</licenseUrl>
+		<license type="file">license.txt</license>
 		<projectUrl>https://github.com/sillsdev/icu</projectUrl>
 		<requireLicenseAcceptance>false</requireLicenseAcceptance>
 		<tags>native</tags>
