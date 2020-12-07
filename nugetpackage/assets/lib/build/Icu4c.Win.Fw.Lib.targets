@@ -1,13 +1,15 @@
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
 	<PropertyGroup>
-		<IcuFwRuntimesDirectory>$(MSBuildThisFileDirectory)\..\runtimes</IcuFwRuntimesDirectory>
-		<IcuFwRuntimeWinX86>$(IcuFwRuntimesDirectory)\win7-x86\native</IcuFwRuntimeWinX86>
-		<IcuFwRuntimeWinX64>$(IcuFwRuntimesDirectory)\win7-x64\native</IcuFwRuntimeWinX64>
+		<IcuFwRuntimesDirectory>$(MSBuildThisFileDirectory)..\runtimes\</IcuFwRuntimesDirectory>
+		<IcuFwRuntimeWinX86>$(IcuFwRuntimesDirectory)win7-x86\native\</IcuFwRuntimeWinX86>
+		<IcuFwRuntimeWinX64>$(IcuFwRuntimesDirectory)win7-x64\native\</IcuFwRuntimeWinX64>
+		<IcuFwIncludeDirectory>$(MSBuildThisFileDirectory)native\include\</IcuFwIncludeDirectory>
+		<IcuFwLibDirectory>$(MSBuildThisFileDirectory)native\lib\</IcuFwLibDirectory>
 	</PropertyGroup>
 
 	<ItemGroup Condition="'$(OS)'=='Windows_NT'">
-		<IcuLibsX86 Include="$(IcuFwRuntimeWinX86)\icu*.dll" />
-		<IcuLibsX64 Include="$(IcuFwRuntimeWinX64)\icu*.dll" />
+		<IcuLibsX86 Include="$(IcuFwRuntimeWinX86)icu*.dll" />
+		<IcuLibsX64 Include="$(IcuFwRuntimeWinX64)icu*.dll" />
 
 		<None Include="@(IcuLibsX86)">
 			<Link>lib\win-x86\%(FileName)%(Extension)</Link>
