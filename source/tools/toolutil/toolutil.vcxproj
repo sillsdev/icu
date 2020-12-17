@@ -191,11 +191,11 @@
     <Link>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <AdditionalLibraryDirectories>..\..\..\lib64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <ProgramDatabaseFile>..\..\..\lib\$(TargetName).pdb</ProgramDatabaseFile>
+      <ProgramDatabaseFile>..\..\..\lib64\$(TargetName).pdb</ProgramDatabaseFile>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <LinkTimeCodeGeneration>UseLinkTimeCodeGeneration</LinkTimeCodeGeneration>
       <BaseAddress>0x4ac00000</BaseAddress>
-      <ImportLibrary>..\..\..\lib\$(TargetName).lib</ImportLibrary>
+      <ImportLibrary>..\..\..\lib64\$(TargetName).lib</ImportLibrary>
       <TargetMachine>MachineX64</TargetMachine>
       <OutputFile>$(OutDir)$(TargetName)54$(TargetExt)</OutputFile>
     </Link>
@@ -230,9 +230,9 @@
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <AdditionalLibraryDirectories>..\..\..\lib64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <ProgramDatabaseFile>..\..\..\lib\$(TargetName)d.pdb</ProgramDatabaseFile>
+      <ProgramDatabaseFile>..\..\..\lib64\$(TargetName)d.pdb</ProgramDatabaseFile>
       <BaseAddress>0x4ac00000</BaseAddress>
-      <ImportLibrary>..\..\..\lib\$(TargetName)d.lib</ImportLibrary>
+      <ImportLibrary>..\..\..\lib64\$(TargetName)d.lib</ImportLibrary>
       <TargetMachine>MachineX64</TargetMachine>
       <OutputFile>$(OutDir)$(TargetName)54d$(TargetExt)</OutputFile>
     </Link>

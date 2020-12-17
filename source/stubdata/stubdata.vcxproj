@@ -205,12 +205,12 @@
     <Link>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <IgnoreAllDefaultLibraries>true</IgnoreAllDefaultLibraries>
-      <ProgramDatabaseFile>..\..\lib\$(TargetName).pdb</ProgramDatabaseFile>
+      <ProgramDatabaseFile>..\..\lib64\$(TargetName).pdb</ProgramDatabaseFile>
       <NoEntryPoint>true</NoEntryPoint>
       <SetChecksum>true</SetChecksum>
       <BaseAddress>0x4ad00000</BaseAddress>
       <TurnOffAssemblyGeneration>true</TurnOffAssemblyGeneration>
-      <ImportLibrary>..\..\lib\$(TargetName).lib</ImportLibrary>
+      <ImportLibrary>..\..\lib64\$(TargetName).lib</ImportLibrary>
       <TargetMachine>MachineX64</TargetMachine>
       <OutputFile>$(OutDir)$(TargetName)54$(TargetExt)</OutputFile>
     </Link>
@@ -245,12 +245,12 @@
     </PreLinkEvent>
     <Link>
       <SuppressStartupBanner>true</SuppressStartupBanner>
-      <ProgramDatabaseFile>..\..\lib\$(TargetName)d.pdb</ProgramDatabaseFile>
+      <ProgramDatabaseFile>..\..\lib64\$(TargetName)d.pdb</ProgramDatabaseFile>
       <NoEntryPoint>true</NoEntryPoint>
       <SetChecksum>true</SetChecksum>
       <BaseAddress>0x4ad00000</BaseAddress>
       <TurnOffAssemblyGeneration>true</TurnOffAssemblyGeneration>
-      <ImportLibrary>..\..\lib\$(TargetName)d.lib</ImportLibrary>
+      <ImportLibrary>..\..\lib64\$(TargetName)d.lib</ImportLibrary>
       <TargetMachine>MachineX64</TargetMachine>
       <OutputFile>$(OutDir)$(TargetName)54d$(TargetExt)</OutputFile>
     </Link>
