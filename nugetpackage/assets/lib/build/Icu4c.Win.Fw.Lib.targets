@@ -4,7 +4,8 @@
 		<IcuFwRuntimeWinX86>$(IcuFwRuntimesDirectory)win7-x86\native\</IcuFwRuntimeWinX86>
 		<IcuFwRuntimeWinX64>$(IcuFwRuntimesDirectory)win7-x64\native\</IcuFwRuntimeWinX64>
 		<IcuFwIncludeDirectory>$(MSBuildThisFileDirectory)native\include\</IcuFwIncludeDirectory>
-		<IcuFwLibDirectory>$(MSBuildThisFileDirectory)native\lib\</IcuFwLibDirectory>
+		<IcuFwLibDirectoryX86>$(MSBuildThisFileDirectory)native\lib\win7-x86\</IcuFwLibDirectoryX86>
+		<IcuFwLibDirectoryX64>$(MSBuildThisFileDirectory)native\lib\win7-x64\</IcuFwLibDirectoryX64>
 	</PropertyGroup>
 
 	<ItemGroup Condition="'$(OS)'=='Windows_NT'">

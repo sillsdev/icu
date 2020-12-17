@@ -18,6 +18,7 @@ The major version number of the nuget package corresponds to the ICU release.
 		</description>
 		<language>en-US</language>
 		<releaseNotes>
+54.1.17 - Include 64-bit .lib files
 54.1.15 - Include .lib files as well as include files to allow building unmanaged projects
 54.1.13 - Binaries will be copied to win-x64/win-x86 to improve compatibility with WIX (cf. https://github.com/sillsdev/icu-dotnet/issues/51).
 		</releaseNotes>
