@@ -66,9 +66,7 @@ ansiColor('xterm') {
 							}
 						}
 
-						if (!isPR) {
-							archiveArtifacts "*.nupkg"
-						}
+						archiveArtifacts "*.nupkg"
 
 						currentBuild.result = "SUCCESS"
 					}
