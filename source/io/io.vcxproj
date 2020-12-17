@@ -189,10 +189,10 @@
     </ResourceCompile>
     <Link>
       <SuppressStartupBanner>true</SuppressStartupBanner>
-      <ProgramDatabaseFile>..\..\lib\$(TargetName).pdb</ProgramDatabaseFile>
+      <ProgramDatabaseFile>..\..\lib64\$(TargetName).pdb</ProgramDatabaseFile>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <BaseAddress>0x4ab00000</BaseAddress>
-      <ImportLibrary>..\..\lib\$(TargetName).lib</ImportLibrary>
+      <ImportLibrary>..\..\lib64\$(TargetName).lib</ImportLibrary>
       <TargetMachine>MachineX64</TargetMachine>
       <OutputFile>$(OutDir)$(TargetName)54$(TargetExt)</OutputFile>
     </Link>
@@ -228,9 +228,9 @@
     <Link>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <ProgramDatabaseFile>..\..\lib\$(TargetName)d.pdb</ProgramDatabaseFile>
+      <ProgramDatabaseFile>..\..\lib64\$(TargetName)d.pdb</ProgramDatabaseFile>
       <BaseAddress>0x4ab00000</BaseAddress>
-      <ImportLibrary>..\..\lib\$(TargetName)d.lib</ImportLibrary>
+      <ImportLibrary>..\..\lib64\$(TargetName)d.lib</ImportLibrary>
       <TargetMachine>MachineX64</TargetMachine>
       <OutputFile>$(OutDir)$(TargetName)54d$(TargetExt)</OutputFile>
     </Link>
