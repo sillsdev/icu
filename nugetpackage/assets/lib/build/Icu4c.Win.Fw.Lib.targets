@@ -7,18 +7,5 @@
 		<IcuFwLibDirectoryX86>$(MSBuildThisFileDirectory)native\lib\win7-x86\</IcuFwLibDirectoryX86>
 		<IcuFwLibDirectoryX64>$(MSBuildThisFileDirectory)native\lib\win7-x64\</IcuFwLibDirectoryX64>
 	</PropertyGroup>
-
-	<ItemGroup Condition="'$(OS)'=='Windows_NT'">
-		<IcuLibsX86 Include="$(IcuFwRuntimeWinX86)icu*.dll" />
-		<IcuLibsX64 Include="$(IcuFwRuntimeWinX64)icu*.dll" />
-
-		<None Include="@(IcuLibsX86)">
-			<Link>lib\win-x86\%(FileName)%(Extension)</Link>
-			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-		</None>
-		<None Include="@(IcuLibsX64)">
-			<Link>lib\win-x64\%(FileName)%(Extension)</Link>
-			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-		</None>
-	</ItemGroup>
+	<!-- We now leave it up to the client to use these properties to put the files where they are needed. -->
 </Project>
