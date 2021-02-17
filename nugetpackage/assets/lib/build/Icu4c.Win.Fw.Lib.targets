@@ -1,11 +1,17 @@
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-	<PropertyGroup>
-		<IcuFwRuntimesDirectory>$(MSBuildThisFileDirectory)..\runtimes\</IcuFwRuntimesDirectory>
-		<IcuFwRuntimeWinX86>$(IcuFwRuntimesDirectory)win7-x86\native\</IcuFwRuntimeWinX86>
-		<IcuFwRuntimeWinX64>$(IcuFwRuntimesDirectory)win7-x64\native\</IcuFwRuntimeWinX64>
-		<IcuFwIncludeDirectory>$(MSBuildThisFileDirectory)native\include\</IcuFwIncludeDirectory>
-		<IcuFwLibDirectoryX86>$(MSBuildThisFileDirectory)native\lib\win7-x86\</IcuFwLibDirectoryX86>
-		<IcuFwLibDirectoryX64>$(MSBuildThisFileDirectory)native\lib\win7-x64\</IcuFwLibDirectoryX64>
-	</PropertyGroup>
-	<!-- We now leave it up to the client to use these properties to put the files where they are needed. -->
+	<Target Name="CopyIcuLibrariesToOutput" Condition="$(CopyIcuLibrariesToOutput) == 'true' And '$(OS)'=='Windows_NT'" AfterTargets="CoreCompile">
+		<ItemGroup>
+			<IcuLibsX86 Include="$(IcuFwRuntimeWinX86)icu*.dll" />
+			<IcuLibsX64 Include="$(IcuFwRuntimeWinX64)icu*.dll" />
+		</ItemGroup>
+
+		<Copy
+			SourceFiles="@(IcuLibsX86)"
+			DestinationFiles="@(LibraryFiles->'$(OutputPath)/lib/win7-x86/%(Filename)%(Extension)')"
+			SkipUnchangedFiles="True" />
+		<Copy
+			SourceFiles="@(IcuLibsX64)"
+			DestinationFiles="@(LibraryFiles->'$(OutputPath)/lib/win7-x64/%(Filename)%(Extension)')"
+			SkipUnchangedFiles="True" />
+	</Target>
 </Project>
