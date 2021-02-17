@@ -7,11 +7,11 @@
 
 		<Copy
 			SourceFiles="@(IcuLibsX86)"
-			DestinationFiles="@(LibraryFiles->'$(OutputPath)/lib/win7-x86/%(Filename)%(Extension)')"
+			DestinationFolder="$(OutputPath)/lib/win7-x86"
 			SkipUnchangedFiles="True" />
 		<Copy
 			SourceFiles="@(IcuLibsX64)"
-			DestinationFiles="@(LibraryFiles->'$(OutputPath)/lib/win7-x64/%(Filename)%(Extension)')"
+			DestinationFolder="$(OutputPath)/lib/win7-x64"
 			SkipUnchangedFiles="True" />
 	</Target>
 </Project>
