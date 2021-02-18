@@ -117,8 +117,6 @@ ansiColor('xterm') {
 								--main-repo-dir . \
 								--package-version "${LinuxPkgVersion}" \
 								\$MAKE_SOURCE_ARGS
-							ls -al
-							ls -al ..
 						"""
 					} // stage('Package')
 					stash name: 'Linux', includes: "icu-fw/,icu-fw_${LinuxPkgVersion}*"
@@ -144,7 +142,6 @@ ansiColor('xterm') {
 								stage("Package ${dist}/${arch}") {
 									echo "Creating package ${LinuxPkgVersion} for ${dist}/${arch}"
 									sh """#!/bin/bash
-										ls -al
 										export FULL_BUILD_NUMBER=${LinuxPkgVersion}
 
 										if [ "${buildKindVar}" = "Release" ]; then
