@@ -1,17 +1,20 @@
 #!groovy
-// Copyright (c) 2016-2020 SIL International
+// Copyright (c) 2016-2021 SIL International
 // This software is licensed under the MIT license (http://opensource.org/licenses/MIT)
 
 ansiColor('xterm') {
 	timestamps {
+		def supported_distros = 'focal bionic'
+		def supported_arches = 'amd64 i386'
+		def x64OnlyDistros = 'focal groovy hirsute'
 		properties([
 			// Add buildKind parameter
 			parameters([
 				choice(name: 'buildKind', choices: 'Continuous\nRelease\nReleaseCandidate',
 					description: 'Is this a continuous (pre-release) or a release build? Release builds for Linux are uploaded to llso:main.'),
-				string(name: 'DistributionsToPackage', defaultValue: 'focal bionic',
+				string(name: 'DistributionsToPackage', defaultValue: supported_distros,
 					description: 'The distributions to build packages for (separated by space)'),
-				string(name: 'ArchesToPackage', defaultValue: 'amd64 i386',
+				string(name: 'ArchesToPackage', defaultValue: supported_arches,
 					description: 'The architectures to build packages for (separated by space)')
 			]),
 			pipelineTriggers([[$class: 'GitHubPushTrigger']])
@@ -19,7 +22,8 @@ ansiColor('xterm') {
 
 		// Set default. This is only needed for the first build.
 		def buildKindVar = params.buildKind ?: 'Continuous'
-		def supported_distros = 'focal bionic'
+		def distributionsToPackageVar = params.DistributionsToPackage ?: supported_distros
+		def archesToPackageVar = params.ArchesToPackage ?: supported_arches
 
 		try {
 			isPR = env.BRANCH_NAME.startsWith("PR-") ? true : false
@@ -28,9 +32,9 @@ ansiColor('xterm') {
 		}
 
 		try {
-			parallel('Windows': {
-				def PkgVersion
+			parallel('Windows' : {
 				node('windows && supported') {
+					def PkgVersion
 					def msbuild = tool 'msbuild15'
 					def git = tool(name: 'Default', type: 'git')
 
@@ -70,12 +74,13 @@ ansiColor('xterm') {
 
 						currentBuild.result = "SUCCESS"
 					}
-			}}, 'Linux': {
-				def PkgVersion
+				} // node('windows && supported')
+			}, 'Linux': {
+				def LinuxPkgVersion
 				node('packager') {
 					stage('Checkout Linux') {
-						dir('icu-fw')
-						{
+						sh 'rm -rf *'
+						dir('icu-fw') {
 							checkout scm
 
 							def uvernum = readFile 'source/common/unicode/uvernum.h'
@@ -89,52 +94,91 @@ ansiColor('xterm') {
 							}
 							def Build = isPR ? "~PR${pr}.${env.BUILD_NUMBER}" :
 								(buildKindVar != 'Release' ? "~beta${env.BUILD_NUMBER}" : ".${env.BUILD_NUMBER}")
-							PkgVersion = "${IcuVersion}.${IcuMinor}.1${Build}"
+							LinuxPkgVersion = "${IcuVersion}.${IcuMinor}.1${Build}"
 						}
 					}
-
-					stage('Package') {
-						echo "Creating package ${PkgVersion}"
+					stage('Linux Source Package') {
+						echo "Creating source package ${LinuxPkgVersion}"
 						sh """#!/bin/bash
-							export FULL_BUILD_NUMBER=${PkgVersion}
+							export FULL_BUILD_NUMBER=${LinuxPkgVersion}
 
 							if [ "${buildKindVar}" = "Release" ]; then
 								MAKE_SOURCE_ARGS="--preserve-changelog"
-								BUILD_PACKAGE_ARGS="--suite-name main"
 							elif [ "${buildKindVar}" = "ReleaseCandidate" ]; then
 								MAKE_SOURCE_ARGS="--preserve-changelog"
-								BUILD_PACKAGE_ARGS="--no-upload"
-							fi
-
-							if ${isPR}; then
-								BUILD_PACKAGE_ARGS="--no-upload"
 							fi
 
 							cd "icu-fw"
-							\$HOME/ci-builder-scripts/bash/make-source --dists "\$DistributionsToPackage" \
-								--arches "\$ArchesToPackage" \
+							\$HOME/ci-builder-scripts/bash/make-source --dists "${distributionsToPackageVar}" \
+								--arches "${archesToPackageVar}" \
 								--main-package-name "icu-fw" \
 								--supported-distros "${supported_distros}" \
 								--debkeyid \$DEBSIGNKEY \
 								--main-repo-dir . \
-								--package-version "${PkgVersion}" \
+								--package-version "${LinuxPkgVersion}" \
 								\$MAKE_SOURCE_ARGS
+							ls -al
+							ls -al ..
+						"""
+					} // stage('Package')
+					stash name: 'Linux', includes: "icu-fw/,icu-fw_${LinuxPkgVersion}*"
+				} // node('packager')
 
-							\$HOME/ci-builder-scripts/bash/build-package --dists "\$DistributionsToPackage" \
-								--arches "\$ArchesToPackage" \
-								--main-package-name "icu-fw" \
-								--supported-distros "${supported_distros}" \
-								--debkeyid \$DEBSIGNKEY \
-								\$BUILD_PACKAGE_ARGS
-							"""
+				def tasks = [:]
+				for (d in distributionsToPackageVar.tokenize()) {
+					def dist = d //! don't inline!
+					tasks["Package build for ${dist}"] = {
+						for (a in archesToPackageVar.tokenize()) {
 
-						archiveArtifacts artifacts: 'results/*'
-					}
-				}
-			})
+							def arch = a //! don't inline!
+
+							if (arch == 'i386' && x64OnlyDistros.contains(dist)) {
+								// we don't build packages for 32-bit on focal and later
+								continue
+							}
+
+							node('packager') {
+								sh 'rm -rf *'
+								unstash name: 'Linux'
+
+								stage("Package ${dist}/${arch}") {
+									echo "Creating package ${LinuxPkgVersion} for ${dist}/${arch}"
+									sh """#!/bin/bash
+										ls -al
+										export FULL_BUILD_NUMBER=${LinuxPkgVersion}
+
+										if [ "${buildKindVar}" = "Release" ]; then
+											BUILD_PACKAGE_ARGS="--suite-name main"
+										elif [ "${buildKindVar}" = "ReleaseCandidate" ]; then
+											BUILD_PACKAGE_ARGS="--no-upload"
+										fi
+
+										if ${isPR}; then
+											BUILD_PACKAGE_ARGS="--no-upload"
+										fi
+
+										cd "icu-fw"
+										\$HOME/ci-builder-scripts/bash/build-package --dists "${dist}" \
+											--arches "${arch}" \
+											--main-package-name "icu-fw" \
+											--supported-distros "${supported_distros}" \
+											--debkeyid \$DEBSIGNKEY \
+											\$BUILD_PACKAGE_ARGS
+										"""
+
+									archiveArtifacts artifacts: 'results/*'
+								} // stage('Package')
+							} // node('packager')
+						} // for (a in archesToPackageVar
+					} // tasks["Package build for ${d}"]
+				} // for (d in distributionsToPackageVar
+
+				tasks.failFast = true
+				parallel tasks
+			}) // parallel Windows/Linux
 		} catch(error) {
 			echo error
 			currentBuild.result = "FAILED"
 		}
-	}
-}
+	} // timestamps
+} // ansiColor
