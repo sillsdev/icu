@@ -4,7 +4,7 @@
 		<id>Icu4c.Win.Fw.Lib</id>
 		<version>$version$</version>
 		<authors>SIL International</authors>
-		<copyright>Copyright (c) 2016-2020 SIL International</copyright>
+		<copyright>Copyright (c) 2016-2021 SIL International</copyright>
 		<license type="file">license.txt</license>
 		<projectUrl>https://github.com/sillsdev/icu</projectUrl>
 		<requireLicenseAcceptance>false</requireLicenseAcceptance>
