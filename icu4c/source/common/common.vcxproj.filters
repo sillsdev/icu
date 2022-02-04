@@ -49,6 +49,9 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="silmods.c">
+      <Filter>SIL Mods</Filter>
+    </ClCompile>
     <ClCompile Include="ubidi.cpp">
       <Filter>bidi</Filter>
     </ClCompile>
@@ -645,6 +648,9 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="silmods.h">
+      <Filter>SIL Mods</Filter>
+    </ClInclude>
     <ClInclude Include="ubidi_props.h">
       <Filter>bidi</Filter>
     </ClInclude>

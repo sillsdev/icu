@@ -318,6 +318,9 @@
     <ClCompile Include="cbiditransformtst.c">
       <Filter>bidi</Filter>
     </ClCompile>
+    <ClCompile Include="sil_override_tst.c">
+      <Filter>SIL Mods</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="cbiditst.h">

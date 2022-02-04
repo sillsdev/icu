@@ -76,6 +76,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="silmods.cpp" />
     <ClCompile Include="filteredbrk.cpp" />
     <ClCompile Include="ubidi.cpp" />
     <ClCompile Include="ubiditransform.cpp" />
@@ -277,6 +278,7 @@
     <ClInclude Include="msvcres.h" />
     <ClInclude Include="pluralmap.h" />
     <ClInclude Include="propname_data.h" />
+    <ClInclude Include="silmods.h" />
     <ClInclude Include="ubidi_props.h" />
     <ClInclude Include="ubidiimp.h" />
     <ClInclude Include="brkeng.h" />

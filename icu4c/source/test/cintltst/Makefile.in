@@ -54,7 +54,7 @@ idnatest.o nfsprep.o spreptst.o sprpdata.o \
 hpmufn.o tracetst.o reapits.o uregiontest.o ulistfmttest.o\
 utexttst.o ucsdetst.o spooftest.o \
 cbiditransformtst.o \
-cgendtst.o \
+cgendtst.o sil_override_tst.o\
 unumberformattertst.o uformattedvaluetst.o unumberrangeformattertst.o
 
 DEPS = $(OBJECTS:.o=.d)

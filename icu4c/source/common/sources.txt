@@ -76,6 +76,7 @@ servnotf.cpp
 servrbf.cpp
 servslkf.cpp
 sharedobject.cpp
+silmods.cpp
 simpleformatter.cpp
 static_unicode_sets.cpp
 stringpiece.cpp
