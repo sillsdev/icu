@@ -57,10 +57,12 @@ _site/
 arm/
 arm64/
 bin/
+!icu4c/nugetpackage/assets/bin
 debug/
 doc/
 lib/
 !tools/cldr/lib
+!icu4c/nugetpackage/assets/lib
 out/
 release/
 !docs/processes/release/

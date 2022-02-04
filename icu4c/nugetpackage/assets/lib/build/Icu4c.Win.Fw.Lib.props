@@ -1,0 +1,12 @@
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+	<PropertyGroup>
+		<CopyIcuLibrariesToOutput Condition="'$(CopyIcuLibrariesToOutput)' == ''">true</CopyIcuLibrariesToOutput>
+
+		<IcuFwRuntimesDirectory>$(MSBuildThisFileDirectory)..\runtimes\</IcuFwRuntimesDirectory>
+		<IcuFwRuntimeWinX86>$(IcuFwRuntimesDirectory)win7-x86\native\</IcuFwRuntimeWinX86>
+		<IcuFwRuntimeWinX64>$(IcuFwRuntimesDirectory)win7-x64\native\</IcuFwRuntimeWinX64>
+		<IcuFwIncludeDirectory>$(MSBuildThisFileDirectory)native\include\</IcuFwIncludeDirectory>
+		<IcuFwLibDirectoryX86>$(MSBuildThisFileDirectory)native\lib\win7-x86\</IcuFwLibDirectoryX86>
+		<IcuFwLibDirectoryX64>$(MSBuildThisFileDirectory)native\lib\win7-x64\</IcuFwLibDirectoryX64>
+	</PropertyGroup>
+</Project>

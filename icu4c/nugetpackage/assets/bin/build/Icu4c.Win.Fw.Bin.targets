@@ -1,0 +1,12 @@
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+	<Target Name="CopyIcuBinariesToOutput" BeforeTargets="CoreCompile">
+		<ItemGroup>
+			<Binaries Include="$(MSBuildThisFileDirectory)/win*/*.*"/>
+		</ItemGroup>
+
+		<Copy
+			SourceFiles="@(Binaries)"
+			DestinationFiles="@(Binaries->'$(OutputPath)/lib/%(RecursiveDir)%(Filename)%(Extension)')"
+			SkipUnchangedFiles="True" />
+	</Target>
+</Project>

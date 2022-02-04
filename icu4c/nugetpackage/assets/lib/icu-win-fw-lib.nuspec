@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<package>
+	<metadata>
+		<id>Icu4c.Win.Fw.Lib</id>
+		<version>$version$</version>
+		<authors>SIL International</authors>
+		<copyright>Copyright (c) 2016-2022 SIL International</copyright>
+		<license type="file">LICENSE</license>
+		<projectUrl>https://github.com/sillsdev/icu</projectUrl>
+		<requireLicenseAcceptance>false</requireLicenseAcceptance>
+		<tags>native</tags>
+		<summary>ICU - International Components for Unicode</summary>
+		<description>ICU - International Components for Unicode
+
+This package contains the FieldWorks version of the libraries of a full build of ICU4C for Windows (32- and 64-bit).
+
+The major version number of the nuget package corresponds to the ICU release.
+		</description>
+		<language>en-US</language>
+		<releaseNotes>
+70.1.0 - Update to version 70
+54.1.17 - Include 64-bit .lib files
+54.1.15 - Include .lib files as well as include files to allow building unmanaged projects
+54.1.13 - Binaries will be copied to win-x64/win-x86 to improve compatibility with WIX (cf. https://github.com/sillsdev/icu-dotnet/issues/51).
+		</releaseNotes>
+		<references/>
+	</metadata>
+</package>
