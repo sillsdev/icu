@@ -101,4 +101,14 @@
 			WorkingDirectory="$(NuGetBuildDir)\bin"/>
 	</Target>
 
+	<Target Name="PrepareTestData">
+		<MakeDir Directories="$(SourceDir)\test\cintltst\icudt$(icu_ver)l" />
+		<Exec Command="bin\gennorm2.exe -o source\test\cintltst\icudt70l\nfkc.nrm source\data\unidata\norm2\nfc.txt source\data\unidata\norm2\nfkc.txt source\test\cintltst\nfkcOverridesTest.txt"
+			WorkingDirectory="$(RootDir)"/>
+	</Target>
+
+	<Target Name="Test" DependsOnTargets="PrepareTestData">
+		<Exec Command="$(SourceDir)\allinone\icucheck.bat $(Platform) $(Configuration)"
+			WorkingDirectory="$(RootDir)" />
+	</Target>
 </Project>
