@@ -1,9 +1,8 @@
-# Copyright (C) 2016 and later: Unicode, Inc. and others.
-# License & terms of use: http://www.unicode.org/copyright.html
+# Copyright (C) 2022 and later: SIL International
 #
-# GitHub Action configuration script for ICU continuous integration tasks.
+# GitHub Action ICU continuous integration tasks.
 
-name: GHA CI
+name: FW Branch CI
 
 on:
   push:
@@ -19,6 +18,7 @@ jobs:
       fail-fast: false
       matrix:
         os: [windows-latest]
+        platform: [Win32, x64]
     runs-on: ${{ matrix.os }}
 
     steps:
@@ -32,6 +32,21 @@ jobs:
       uses: microsoft/setup-msbuild@v1.1
       if: ${{ matrix.os == 'windows-latest' }}
 
-    - name: Build
-      run: msbuild nugetpackage/build/icu4c.proj
+    - name: Build ICU
       working-directory: icu4c
+      run: msbuild source/allinone/allinone.sln /p:Configuration=Release /p:Platform=${{matrix.platform}} /p:SkipUWP=true
+      if: ${{ matrix.os == 'windows-latest' }}
+
+    - name: Test ICU
+      run: source/allinone/icucheck.bat ${{matrix.platform}} Release
+      working-directory: icu4c
+
+    - name: Package
+      working-directory: icu4c
+      run: msbuild nugetpackage/build/icu4c.proj /t:BuildPackage
+
+    - name: Upload Artifacts
+      uses: actions/upload-artifact@v2
+      with:
+        name: packages
+        path: ./**/*.nupkg
