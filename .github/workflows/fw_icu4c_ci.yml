@@ -18,7 +18,6 @@ jobs:
       fail-fast: false
       matrix:
         os: [windows-latest]
-        platform: [[Win32, x86], [x64, x64]]
     runs-on: ${{ matrix.os }}
 
     steps:
@@ -32,20 +31,33 @@ jobs:
       uses: microsoft/setup-msbuild@v1.1
       if: ${{ matrix.os == 'windows-latest' }}
 
-    - name: Build ICU
+    - name: Build ICU 32 bit
       working-directory: icu4c
-      run: msbuild source/allinone/allinone.sln /p:Configuration=Release /p:Platform=${{matrix.platform[0]}} /p:SkipUWP=true
+      run: msbuild source/allinone/allinone.sln /p:Configuration=Release /p:Platform=Win32 /p:SkipUWP=true
       if: ${{ matrix.os == 'windows-latest' }}
 
     - name: Prepare data for SIL tests
       working-directory: icu4c
       run: msbuild nugetpackage/build/icu4c.proj /t:PrepareTestData
 
-    - name: Test ICU
-      run: source/allinone/icucheck.bat ${{matrix.platform[1]}} Release
+    - name: Test ICU 32 bit
+      run: source/allinone/icucheck.bat x86 Release
       working-directory: icu4c
 
-    - name: Package
+    - name: Build ICU 64 bit
+      working-directory: icu4c
+      run: msbuild source/allinone/allinone.sln /p:Configuration=Release /p:Platform=x64 /p:SkipUWP=true
+      if: ${{ matrix.os == 'windows-latest' }}
+
+    - name: Test ICU 64 bit
+      run: source/allinone/icucheck.bat x64 Release
+      working-directory: icu4c
+
+    - name: Prepare data for SIL tests (64 bit - TODO need this?)
+      working-directory: icu4c
+      run: msbuild nugetpackage/build/icu4c.proj /t:PrepareTestData
+
+    - name: Package (both 32bit and 64bit architectures)
       working-directory: icu4c
       run: msbuild nugetpackage/build/icu4c.proj /t:BuildPackage
 
