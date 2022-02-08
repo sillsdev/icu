@@ -18,7 +18,7 @@ jobs:
       fail-fast: false
       matrix:
         os: [windows-latest]
-        platform: [Win32, x64]
+        platform: [[Win32, x86], [x64, x64]]
     runs-on: ${{ matrix.os }}
 
     steps:
@@ -34,11 +34,15 @@ jobs:
 
     - name: Build ICU
       working-directory: icu4c
-      run: msbuild source/allinone/allinone.sln /p:Configuration=Release /p:Platform=${{matrix.platform}} /p:SkipUWP=true
+      run: msbuild source/allinone/allinone.sln /p:Configuration=Release /p:Platform=${{matrix.platform[0]}} /p:SkipUWP=true
       if: ${{ matrix.os == 'windows-latest' }}
 
+    - name: Prepare data for SIL tests
+      working-directory: icu4c
+      run: msbuild nugetpackage/build/icu4c.proj /t:PrepareTestData
+
     - name: Test ICU
-      run: source/allinone/icucheck.bat ${{matrix.platform}} Release
+      run: source/allinone/icucheck.bat ${{matrix.platform[1]}} Release
       working-directory: icu4c
 
     - name: Package
