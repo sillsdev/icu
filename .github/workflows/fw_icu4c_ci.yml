@@ -13,12 +13,10 @@ on:
 
 jobs:
 
-  build:
+  win-build-test-package:
     strategy:
       fail-fast: false
-      matrix:
-        os: [windows-latest]
-    runs-on: ${{ matrix.os }}
+    runs-on: windows-latest
 
     steps:
     - name: Checkout
@@ -29,12 +27,10 @@ jobs:
     # Add  MSBuild to the PATH: https://github.com/microsoft/setup-msbuild
     - name: Setup MSBuild.exe (Windows OS)
       uses: microsoft/setup-msbuild@v1.1
-      if: ${{ matrix.os == 'windows-latest' }}
 
     - name: Build ICU 32 bit
       working-directory: icu4c
       run: msbuild source/allinone/allinone.sln /p:Configuration=Release /p:Platform=Win32 /p:SkipUWP=true
-      if: ${{ matrix.os == 'windows-latest' }}
 
     - name: Prepare data for SIL tests
       working-directory: icu4c
@@ -47,15 +43,10 @@ jobs:
     - name: Build ICU 64 bit
       working-directory: icu4c
       run: msbuild source/allinone/allinone.sln /p:Configuration=Release /p:Platform=x64 /p:SkipUWP=true
-      if: ${{ matrix.os == 'windows-latest' }}
 
     - name: Test ICU 64 bit
       run: source/allinone/icucheck.bat x64 Release
       working-directory: icu4c
-
-    - name: Prepare data for SIL tests (64 bit - TODO need this?)
-      working-directory: icu4c
-      run: msbuild nugetpackage/build/icu4c.proj /t:PrepareTestData
 
     - name: Package (both 32bit and 64bit architectures)
       working-directory: icu4c
@@ -66,3 +57,23 @@ jobs:
       with:
         name: packages
         path: ./**/*.nupkg
+
+  # Run ICU4C tests with SIL mod and stub data
+  # Adapted from run-with-stubdata from unicode-org/icu/.github/icu_ci.yml 
+  linux-build-test-with-silmods:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Build - Setup SIL Data (and icu stubdata) Run tests
+        run: |
+          cd icu4c/source;
+          ./runConfigureICU Linux;
+          make -j2;
+          echo 'make directory for sil test data NB: update folder for new version';
+          mkdir test/cintltst/icudt70l;
+          export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:./lib/
+          ./bin/gennorm2 -o ./test/cintltst/icudt70l/nfkc.nrm ./data/unidata/norm2/nfc.txt ./data/unidata/norm2/nfkc.txt ./test/cintltst/nfkcOverridesTest.txt;
+          cd test/cintltst;
+          echo 'Running ICU4C cintltst';
+          make -j2 check;
