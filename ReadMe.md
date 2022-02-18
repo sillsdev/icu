@@ -1,3 +1,8 @@
+# Historical Version For Reference Only
+
+This branch is not connected to any branches in the official icu repository, it pre-dated the icu projects move to github.
+The current (as of 18-Feb-2022) branch is named fw and it will be frequently be updated to track icu releases.
+
 # Icu4c
 
 **NOTE:** See the original project's readme at [readme.html](https://github.com/sillsdev/icu4c/blob/FieldWorks/readme.html)
