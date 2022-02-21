@@ -11,14 +11,41 @@ on:
   pull_request:
     branches: 'fw'
 
+# Cancel any workflow jobs running if the PR is re-triggered
+concurrency:
+  group: ci-${{ github.head_ref }}-group
+  cancel-in-progress: true
+
 jobs:
+  set-version-number:
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.calc-version.outputs.result }}
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2.3.4
+      with:
+        fetch-depth: 0
+
+    - id: calc-version
+      name: Calculate Version
+      run: |
+        major=$(grep -oP '.*U_ICU_VERSION_MAJOR_NUM \K.*' icu4c/source/common/unicode/uvernum.h)
+        minor=$(grep -oP '.*U_ICU_VERSION_MINOR_NUM \K.*' icu4c/source/common/unicode/uvernum.h)
+        build=${{ github.run_number }}
+        echo "::set-output name=result::$major.$minor.$build"
 
   win-build-test-package:
+    needs: set-version-number
     strategy:
       fail-fast: false
     runs-on: windows-latest
 
     steps:
+    - name: Verify Version
+      run: |
+        echo "Version ${{ needs.set-version-number.outputs.version }}"
+
     - name: Checkout
       uses: actions/checkout@v2.3.4
       with:
@@ -50,20 +77,27 @@ jobs:
 
     - name: Package (both 32bit and 64bit architectures)
       working-directory: icu4c
-      run: msbuild nugetpackage/build/icu4c.proj /t:BuildPackage
+      run: msbuild nugetpackage/build/icu4c.proj /t:BuildPackage /p:PkgVersion=${{ needs.set-version-number.outputs.version }}
 
     - name: Upload Artifacts
       uses: actions/upload-artifact@v2
       with:
         name: packages
         path: ./**/*.nupkg
+    - name: Publish nuget packages
+      if: github.event.pull_request.merged == true
+      run: dotnet nuget push -k {{ secrets.ICU_NUGET_API_KEY }} ./**/*.nupkg
+
 
   # Run ICU4C tests with SIL mod and stub data
   # Adapted from run-with-stubdata from unicode-org/icu/.github/icu_ci.yml 
   linux-build-test-with-silmods:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - name: Checkout
+        uses: actions/checkout@v2.3.4
+        with:
+          fetch-depth: 0
 
       - name: Build - Setup SIL Data (and icu stubdata) Run tests
         run: |
@@ -77,3 +111,35 @@ jobs:
           cd test/cintltst;
           echo 'Running ICU4C cintltst';
           make -j2 check;
+
+  debian-packaging:
+    needs: set-version-number
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2.3.4
+        with:
+          fetch-depth: 0
+
+      - name: Checkout ci-build-tools
+        run: git clone https://github.com/sillsdev/ci-builder-scripts
+
+      - name: Build debian package
+        run: |
+          set -xueo pipefail
+          sudo apt-get install -y devscripts dh-make dirmngr
+          mkdir -v ~/.gnupg
+          cd icu4c/
+          ../ci-builder-scripts/bash/make-source --dists "focal" --arches "amd64" --main-package-name "icu-fw" --supported-distros "focal bionic" --main-repo-dir . --package-version ${{needs.set-version-number.outputs.version}} --build-in-place
+          find ~/packages ~ -name \*.dsc -o -name \*.changes 
+          ../ci-builder-scripts/bash/build-package --dists "focal" --arches "amd64" --main-package-name "icu-fw" --supported-distros "focal bionic" --main-repo-dir . --package-version ${{needs.set-version-number.outputs.version}} --build-in-place
+
+      - name: Upload Artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          name: packages
+          path: |
+            ./**/icu-fw_${{needs.set-version-number.outputs.version}}*.dsc
+            ./**/icu-fw_${{needs.set-version-number.outputs.version}}*.source.build
+            ./**/icu-fw_${{needs.set-version-number.outputs.version}}*.source.changes
+            ./**/icu-fw_${{needs.set-version-number.outputs.version}}*.tar.xz

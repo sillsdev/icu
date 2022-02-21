@@ -13,7 +13,7 @@ Build-Depends: debhelper (>= 9.0.0), dpkg-dev (>= 1.16.1~),
 Package: icu-fw
 Section: libs
 Architecture: all
-Depends: libicu54-fw, icu54-bin-fw
+Depends: libicu70-fw, icu70-bin-fw
 Description: International Components for Unicode
  FieldWorks specific version of ICU.
  .
@@ -21,7 +21,7 @@ Description: International Components for Unicode
  Unicode and locale support.  This package depends on the other
  ICU packages that FieldWorks requires.
 
-Package: libicu54-fw
+Package: libicu70-fw
 Section: libs
 Architecture: any
 Pre-Depends: ${misc:Pre-Depends}
@@ -33,18 +33,18 @@ Description: International Components for Unicode
  Unicode and locale support.  This package contains a FieldWorks
  specific version of the runtime libraries for ICU.
 
-Package: libicu54-fw-dbg
+Package: libicu70-fw-dbg
 Section: debug
 Priority: extra
 Architecture: any
 Pre-Depends: ${misc:Pre-Depends}
-Depends: ${misc:Depends}, libicu54-fw (= ${binary:Version})
+Depends: ${misc:Depends}, libicu70-fw (= ${binary:Version})
 Description: International Components for Unicode
  ICU is a C++ and C library that provides robust and full-featured
  Unicode and locale support.  This package contains a FieldWorks
  specific version of the debugging symbols for the libraries.
 
-Package: icu54-bin-fw
+Package: icu70-bin-fw
 Section: libs
 Architecture: any
 Pre-Depends: ${misc:Pre-Depends}
@@ -60,7 +60,7 @@ Description: Development utilities for International Components for Unicode
 Package: icu-dev-fw
 Section: libs
 Architecture: all
-Depends: libicu54-fw
+Depends: libicu70-fw
 Description: International Components for Unicode
  FieldWorks specific version of ICU.
  .
