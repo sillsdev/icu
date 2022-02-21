@@ -72,6 +72,7 @@
 			<LibLibArtifacts Include='$(RootDir)\lib\i*.lib' />
 			<LibLibArtifacts64 Include='$(RootDir)\lib64\i*.lib' />
 			<LibIncludeArtifacts Include='$(RootDir)\include\**\*' />
+			<LibDataArtifacts Include='$(RootDir)\source\data\out\icudt*.dat'/>
 			<BinArtifacts Include='$(RootDir)\bin\*.exe'/>
 			<BinArtifacts64 Include='$(RootDir)\bin64\*.exe'/>
 			<BinNuGetAssets Include='$(NuGetOutputDir)/assets/bin/**/*'/>
@@ -87,6 +88,7 @@
 		<Copy SourceFiles="@(LibLibArtifacts)" DestinationFolder="$(NuGetBuildDir)\lib\$(NuGetLibFolderWinX86)" />
 		<Copy SourceFiles="@(LibLibArtifacts64)" DestinationFolder="$(NuGetBuildDir)\lib\$(NuGetLibFolderWinX64)" />
 		<Copy SourceFiles="@(LibIncludeArtifacts)" DestinationFiles="@(LibIncludeArtifacts->'$(NuGetBuildDir)\lib\build\native\include\%(RecursiveDir)%(Filename)%(Extension)')" />
+		<Copy SourceFiles="@(LibDataArtifacts)" DestinationFolder="$(NugetBuildDir)\lib\content\any\any\" />
 		<Copy SourceFiles="@(LicenseFile)" DestinationFolder="$(NuGetBuildDir)\lib\" />
 		<Exec Command="$(MSBuildProjectDirectory)\nuget pack -Version $(PkgVersion) -OutputDirectory $(NuGetOutputDir) icu-win-fw-lib.nuspec"
 			WorkingDirectory="$(NuGetBuildDir)\lib"/>
