@@ -148,7 +148,7 @@ jobs:
           set -xueo pipefail
           mkdir --verbose ~/.gnupg
           cd /home/runner/work/icu/ci-builder-scripts/bash
-          ./setup.sh --dists focal --arches amd64
+          ./setup.sh --dists "focal bionic" --arches amd64
       - name: Build debian package
         env:
           WORKAREA: /home/runner/work/${{github.event.repository.name}}
@@ -166,7 +166,7 @@ jobs:
             --dists "focal" \
             --arches "amd64" \
             --main-package-name "icu-fw" \
-            --supported-distros "focal" \
+            --supported-distros "focal bionic" \
             --package-version ${version} \
             --preserve-changelog \
             --build-in-place
@@ -175,7 +175,7 @@ jobs:
             --dists "focal" \
             --arches "amd64" \
             --main-package-name "icu-fw" \
-            --supported-distros "focal" \
+            --supported-distros "focal bionic" \
             --build-in-place \
             --no-upload'
 
