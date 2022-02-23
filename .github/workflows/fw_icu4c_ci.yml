@@ -59,6 +59,11 @@ jobs:
       working-directory: icu4c
       run: msbuild source/allinone/allinone.sln /p:Configuration=Release /p:Platform=Win32 /p:SkipUWP=true
 
+    # Build the data into the icu{ver}dt.dll
+    - name: Build ICU Data 32 bit
+      working-directory: icu4c
+      run: msbuild source/allinone/allinone.sln /t:makedata /p:Configuration=Release /p:Platform=Win32 /p:SkipUWP=true
+
     - name: Prepare data for SIL tests
       working-directory: icu4c
       run: msbuild nugetpackage/build/icu4c.proj /t:PrepareTestData
@@ -70,6 +75,10 @@ jobs:
     - name: Build ICU 64 bit
       working-directory: icu4c
       run: msbuild source/allinone/allinone.sln /p:Configuration=Release /p:Platform=x64 /p:SkipUWP=true
+
+    - name: Build ICU Data 64 bit
+      working-directory: icu4c
+      run: msbuild source/allinone/allinone.sln /t:makedata /p:Configuration=Release /p:Platform=x64 /p:SkipUWP=true
 
     - name: Test ICU 64 bit
       run: source/allinone/icucheck.bat x64 Release
@@ -90,7 +99,7 @@ jobs:
 
 
   # Run ICU4C tests with SIL mod and stub data
-  # Adapted from run-with-stubdata from unicode-org/icu/.github/icu_ci.yml 
+  # Adapted from run-with-stubdata from unicode-org/icu/.github/icu_ci.yml
   linux-build-test-with-silmods:
     runs-on: ubuntu-latest
     steps:
@@ -118,21 +127,55 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v2.3.4
-        with:
-          fetch-depth: 0
 
       - name: Checkout ci-build-tools
-        run: git clone https://github.com/sillsdev/ci-builder-scripts
-
-      - name: Build debian package
         run: |
           set -xueo pipefail
-          sudo apt-get install -y devscripts dh-make dirmngr
-          mkdir -v ~/.gnupg
-          cd icu4c/
-          ../ci-builder-scripts/bash/make-source --dists "focal" --arches "amd64" --main-package-name "icu-fw" --supported-distros "focal bionic" --main-repo-dir . --package-version ${{needs.set-version-number.outputs.version}} --build-in-place
-          find ~/packages ~ -name \*.dsc -o -name \*.changes 
-          ../ci-builder-scripts/bash/build-package --dists "focal" --arches "amd64" --main-package-name "icu-fw" --supported-distros "focal bionic" --main-repo-dir . --package-version ${{needs.set-version-number.outputs.version}} --build-in-place
+          cd /home/runner/work/icu
+          git clone https://github.com/sillsdev/ci-builder-scripts
+
+      # TODO more will need done to do this successfully since some files are root readable only
+      - name: Cache
+        uses: actions/cache@v2
+        with:
+          path: /var/lib/schroot/chroots
+          key: icu-debian-package-${{ github.ref_name }}
+          restore-keys: icu-debian-package-${{ github.base_ref || github.ref_name }}
+      - name: Seed cache
+        run: |
+          set -xueo pipefail
+          mkdir --verbose ~/.gnupg
+          cd /home/runner/work/icu/ci-builder-scripts/bash
+          ./setup.sh --dists focal --arches amd64
+      - name: Build debian package
+        env:
+          WORKAREA: /home/runner/work/${{github.event.repository.name}}
+        run: |
+          set -xueo pipefail
+          unset MAILPROG
+          sudo apt-get install -y devscripts dh-make dirmngr sendmail
+          mkdir --verbose --parents ~/.gnupg
+          export WORKSPACE="${WORKAREA}/icu/icu4c"
+          export CI_SCRIPT_DIR="${WORKAREA}/ci-builder-scripts"
+          export ARCHES_TO_PACKAGE="amd64"
+          cd "${WORKSPACE}/"
+          version="${{needs.set-version-number.outputs.version}}.experimental"
+          ${CI_SCRIPT_DIR}/bash/make-source \
+            --dists "focal" \
+            --arches "amd64" \
+            --main-package-name "icu-fw" \
+            --supported-distros "focal" \
+            --package-version ${version} \
+            --preserve-changelog \
+            --build-in-place
+          mv --verbose ../icu-fw* .
+          sg sbuild '${CI_SCRIPT_DIR}/bash/build-package \
+            --dists "focal" \
+            --arches "amd64" \
+            --main-package-name "icu-fw" \
+            --supported-distros "focal" \
+            --build-in-place \
+            --no-upload'
 
       - name: Upload Artifacts
         uses: actions/upload-artifact@v2

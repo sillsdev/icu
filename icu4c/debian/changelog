@@ -1,7 +1,8 @@
 icu-fw (70.1.0) stable; urgency=medium
+
   * Package ICU version 70
 
- -- Jason Naylor <jason_naylor@sil.org> Mon, 21 Feb 2022 14:24:05 -0800
+ -- Jason Naylor <jason_naylor@sil.org>  Mon, 21 Feb 2022 14:24:05 -0800
 
 icu-fw (54.1.0) stable; urgency=medium
 
