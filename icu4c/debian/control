@@ -26,8 +26,8 @@ Section: libs
 Architecture: any
 Pre-Depends: ${misc:Pre-Depends}
 Depends: ${misc:Depends}, ${shlibs:Depends}
-Conflicts: fieldworks-applications (<< 9.0)
-Breaks: fieldworks-applications (<< 9.0)
+Conflicts: fieldworks-applications (<< 9.0), libicu54-fw
+Breaks: fieldworks-applications (<< 9.0), libicu54-fw
 Description: International Components for Unicode
  ICU is a C++ and C library that provides robust and full-featured
  Unicode and locale support.  This package contains a FieldWorks
@@ -49,8 +49,8 @@ Section: libs
 Architecture: any
 Pre-Depends: ${misc:Pre-Depends}
 Depends: ${misc:Depends}, ${shlibs:Depends}
-Conflicts: fieldworks-applications (<< 9.0)
-Breaks: fieldworks-applications (<< 9.0)
+Conflicts: fieldworks-applications (<< 9.0), icu54-bin-fw
+Breaks: fieldworks-applications (<< 9.0), icu54-bin-fw
 Description: Development utilities for International Components for Unicode
  ICU is a C++ and C library that provides robust and full-featured
  Unicode and locale support. This package contains FieldWorks specific
