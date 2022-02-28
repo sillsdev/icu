@@ -30,7 +30,7 @@ Conflicts: fieldworks-applications (<< 9.0), libicu54-fw
 Breaks: fieldworks-applications (<< 9.0), libicu54-fw
 Description: International Components for Unicode
  ICU is a C++ and C library that provides robust and full-featured
- Unicode and locale support.  This package contains a FieldWorks
+ Unicode and locale support.  This package contains a FieldWorks-
  specific version of the runtime libraries for ICU.
 
 Package: libicu70-fw-dbg
@@ -41,7 +41,7 @@ Pre-Depends: ${misc:Pre-Depends}
 Depends: ${misc:Depends}, libicu70-fw (= ${binary:Version})
 Description: International Components for Unicode
  ICU is a C++ and C library that provides robust and full-featured
- Unicode and locale support.  This package contains a FieldWorks
+ Unicode and locale support.  This package contains a FieldWorks-
  specific version of the debugging symbols for the libraries.
 
 Package: icu70-bin-fw
