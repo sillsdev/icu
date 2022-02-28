@@ -15,7 +15,7 @@ Section: libs
 Architecture: amd64
 Depends: libicu70-fw, icu70-bin-fw
 Description: International Components for Unicode
- FieldWorks specific version of ICU.
+ FieldWorks-specific version of ICU.
  .
  ICU is a C++ and C library that provides robust and full-featured
  Unicode and locale support.  This package depends on the other
@@ -53,7 +53,7 @@ Conflicts: fieldworks-applications (<< 9.0), icu54-bin-fw
 Breaks: fieldworks-applications (<< 9.0), icu54-bin-fw
 Description: Development utilities for International Components for Unicode
  ICU is a C++ and C library that provides robust and full-featured
- Unicode and locale support. This package contains FieldWorks specific
+ Unicode and locale support. This package contains FieldWorks-specific
  versions of the programs used to manipulate data files found in the ICU
  sources.
 
@@ -62,7 +62,7 @@ Section: libs
 Architecture: all
 Depends: libicu70-fw
 Description: International Components for Unicode
- FieldWorks specific version of ICU.
+ FieldWorks-specific version of ICU.
  .
  ICU is a C++ and C library that provides robust and full-featured
  Unicode and locale support.  This package contains header and other

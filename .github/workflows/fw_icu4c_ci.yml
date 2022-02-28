@@ -136,6 +136,10 @@ jobs:
           cd /home/runner/work/icu
           git clone https://github.com/sillsdev/ci-builder-scripts
 
+      - name: Set experimental Suffix for PR Builds
+        if: github.event.pull_request.merged != true
+        run: echo "package_suffix=.experimental" >> $GITHUB_ENV 
+
       # TODO more will need done to do this successfully since some files are root readable only
       - name: Cache
         uses: actions/cache@v2
@@ -161,7 +165,7 @@ jobs:
           export CI_SCRIPT_DIR="${WORKAREA}/ci-builder-scripts"
           export ARCHES_TO_PACKAGE="amd64"
           cd "${WORKSPACE}/"
-          version="${{needs.set-version-number.outputs.version}}.experimental"
+          version="${{needs.set-version-number.outputs.version}}${{ env.package_suffix }}"
           ${CI_SCRIPT_DIR}/bash/make-source \
             --dists "focal" \
             --arches "amd64" \
