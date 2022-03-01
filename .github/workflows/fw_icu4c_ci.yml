@@ -112,16 +112,17 @@ jobs:
 
       - name: Build - Setup SIL Data (and icu stubdata) Run tests
         run: |
-          cd icu4c/source;
-          ./runConfigureICU Linux;
-          make -j2;
-          echo 'make directory for sil test data NB: update folder for new version';
-          mkdir test/cintltst/icudt70l;
+          set -xeo pipefail
+          cd icu4c/source
+          ./runConfigureICU Linux
+          make -j2
+          echo 'make directory for sil test data NB: update folder for new version'
+          mkdir test/cintltst/icudt70l
           export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:./lib/
-          ./bin/gennorm2 -o ./test/cintltst/icudt70l/nfkc.nrm ./data/unidata/norm2/nfc.txt ./data/unidata/norm2/nfkc.txt ./test/cintltst/nfkcOverridesTest.txt;
-          cd test/cintltst;
-          echo 'Running ICU4C cintltst';
-          make -j2 check;
+          ./bin/gennorm2 -o ./test/cintltst/icudt70l/nfkc.nrm ./data/unidata/norm2/nfc.txt ./data/unidata/norm2/nfkc.txt ./test/cintltst/nfkcOverridesTest.txt
+          cd test/cintltst
+          echo 'Running ICU4C cintltst'
+          make -j2 check
 
   debian-packaging:
     needs: set-version-number
@@ -147,27 +148,19 @@ jobs:
           path: /var/lib/schroot/chroots
           key: icu-debian-package-${{ github.ref_name }}
           restore-keys: icu-debian-package-${{ github.base_ref || github.ref_name }}
-      - name: Seed cache
-        run: |
-          set -xueo pipefail
-          mkdir --verbose ~/.gnupg
-          cd /home/runner/work/icu/ci-builder-scripts/bash
-          ./setup.sh --dists "focal bionic" --arches amd64
       - name: Build debian package
         env:
           WORKAREA: /home/runner/work/${{github.event.repository.name}}
         run: |
           set -xueo pipefail
-          unset MAILPROG
-          sudo apt-get install -y devscripts dh-make dirmngr sendmail
+          sudo apt-get install -y devscripts dh-make sendmail sbuild
           mkdir --verbose --parents ~/.gnupg
           export WORKSPACE="${WORKAREA}/icu/icu4c"
           export CI_SCRIPT_DIR="${WORKAREA}/ci-builder-scripts"
-          export ARCHES_TO_PACKAGE="amd64"
           cd "${WORKSPACE}/"
           version="${{needs.set-version-number.outputs.version}}${{ env.package_suffix }}"
           ${CI_SCRIPT_DIR}/bash/make-source \
-            --dists "focal" \
+            --dists "focal bionic" \
             --arches "amd64" \
             --main-package-name "icu-fw" \
             --supported-distros "focal bionic" \
@@ -175,8 +168,9 @@ jobs:
             --preserve-changelog \
             --build-in-place
           mv --verbose ../icu-fw* .
+          sudo sbuild-adduser runner
           sg sbuild '${CI_SCRIPT_DIR}/bash/build-package \
-            --dists "focal" \
+            --dists "focal bionic" \
             --arches "amd64" \
             --main-package-name "icu-fw" \
             --supported-distros "focal bionic" \
