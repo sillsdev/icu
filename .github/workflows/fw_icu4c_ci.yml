@@ -96,7 +96,7 @@ jobs:
         if-no-files-found: error
 
     - name: Publish nuget packages
-      if: github.event.pull_request.merged == true
+      if: github.event_name == 'push'
       run: dotnet nuget push -k {{ secrets.ICU_NUGET_API_KEY }} ./**/*.nupkg
 
 
@@ -138,7 +138,7 @@ jobs:
           git clone https://github.com/sillsdev/ci-builder-scripts
 
       - name: Set experimental Suffix for PR Builds
-        if: github.event.pull_request.merged != true
+        if: github.event_name != 'push'
         run: echo "package_suffix=.experimental" >> $GITHUB_ENV 
 
       # TODO more will need done to do this successfully since some files are root readable only
@@ -183,8 +183,8 @@ jobs:
           name: linux-packages
           path: |
             ./**/results/icu-fw_${{needs.set-version-number.outputs.version}}*.dsc
-            ./**/results/icu-fw_${{needs.set-version-number.outputs.version}}*.source.build
-            ./**/results/icu-fw_${{needs.set-version-number.outputs.version}}*.source.changes
+            ./**/results/icu-fw_${{needs.set-version-number.outputs.version}}*.buildinfo
+            ./**/results/icu-fw_${{needs.set-version-number.outputs.version}}*.changes
             ./**/results/icu-fw_${{needs.set-version-number.outputs.version}}*.tar.xz
             ./**/results/*${{needs.set-version-number.outputs.version}}*.deb
           if-no-files-found: error
