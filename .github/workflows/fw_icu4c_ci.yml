@@ -97,7 +97,8 @@ jobs:
 
     - name: Publish nuget packages
       if: github.event_name == 'push'
-      run: dotnet nuget push -k {{ secrets.ICU_NUGET_API_KEY }} ./**/*.nupkg
+      working-directory: icu4c
+      run: dotnet nuget push -k {{ secrets.ICU_NUGET_API_KEY }} 'nugetpackage/*.nupkg'
 
 
   # Run ICU4C tests with SIL mod and stub data
