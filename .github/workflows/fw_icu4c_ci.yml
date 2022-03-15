@@ -188,4 +188,5 @@ jobs:
             ./**/results/icu-fw_${{needs.set-version-number.outputs.version}}*.changes
             ./**/results/icu-fw_${{needs.set-version-number.outputs.version}}*.tar.xz
             ./**/results/*${{needs.set-version-number.outputs.version}}*.deb
+            ./**/results/*${{needs.set-version-number.outputs.version}}*.ddeb
           if-no-files-found: error
