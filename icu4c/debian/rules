@@ -5,30 +5,31 @@
 #export DH_VERBOSE=1
 
 export FWPREFIX=/usr/lib/fieldworks
+export ICU_LIBDIR="$(FWPREFIX)/lib/x64"
 
 %:
 	dh $@ --parallel
 
 override_dh_auto_configure:
 	echo "args=$@"
-	source/configure --prefix=$(FWPREFIX)
+	source/configure --prefix=$(FWPREFIX) --libdir="$(ICU_LIBDIR)"
 
 override_dh_auto_test:
 
 override_dh_auto_install:
 	dh_auto_install --destdir=debian/tmp
 	install -d debian/icu70-bin-fw$(FWPREFIX)/icu-bin
-	install -d debian/libicu70-fw$(FWPREFIX)/lib
+	install -d debian/libicu70-fw$(ICU_LIBDIR)
 	install -d debian/icu-dev-fw$(FWPREFIX)/include/unicode
-	install -d debian/icu-dev-fw$(FWPREFIX)/lib/pkgconfig
+	install -d debian/icu-dev-fw$(ICU_LIBDIR)/pkgconfig
 	install debian/tmp$(FWPREFIX)/bin/* debian/icu70-bin-fw$(FWPREFIX)/icu-bin/
 	install debian/tmp$(FWPREFIX)/sbin/* debian/icu70-bin-fw$(FWPREFIX)/icu-bin/
-	install -m 644 debian/tmp$(FWPREFIX)/lib/lib* debian/libicu70-fw$(FWPREFIX)/lib/
+	install -m 644 debian/tmp$(ICU_LIBDIR)/lib* debian/libicu70-fw$(ICU_LIBDIR)/
 	install debian/tmp$(FWPREFIX)/include/unicode/* debian/icu-dev-fw$(FWPREFIX)/include/unicode/
-	install debian/tmp$(FWPREFIX)/lib/pkgconfig/* debian/icu-dev-fw$(FWPREFIX)/lib/pkgconfig/
+	install debian/tmp$(ICU_LIBDIR)/pkgconfig/* debian/icu-dev-fw$(ICU_LIBDIR)/pkgconfig/
 
 override_dh_strip:
 	dh_strip --dbg-package=libicu70-fw-dbg
 
 override_dh_shlibdeps:
-	dh_shlibdeps -l$(FWPREFIX)/lib
+	dh_shlibdeps -l$(ICU_LIBDIR)
