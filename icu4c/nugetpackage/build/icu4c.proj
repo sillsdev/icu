@@ -54,8 +54,8 @@
 	<Target Name="BuildPackage" DependsOnTargets="CleanNuGet;CheckPrerequisites">
 		<PropertyGroup>
 			<NuGetOutputDir>$(MSBuildProjectDirectory)/..</NuGetOutputDir>
-			<NuGetRuntimeFolderWinX86>runtimes/win7-x86/native</NuGetRuntimeFolderWinX86>
-			<NuGetRuntimeFolderWinX64>runtimes/win7-x64/native</NuGetRuntimeFolderWinX64>
+			<NuGetRuntimeFolderWinX86>runtimes/win-x86/native</NuGetRuntimeFolderWinX86>
+			<NuGetRuntimeFolderWinX64>runtimes/win-x64/native</NuGetRuntimeFolderWinX64>
 		</PropertyGroup>
 		<ItemGroup>
 			<Artifacts Include='$(RootDir)\bin\icudt*.dll;$(RootDir)\bin\icuin*.dll;$(RootDir)\bin\icuuc*.dll'/>
