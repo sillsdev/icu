@@ -1,8 +1,8 @@
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
 	<PropertyGroup>
 		<RuntimesDirectory>$(MSBuildThisFileDirectory)\..\runtimes</RuntimesDirectory>
-		<RuntimeWinX86>$(RuntimesDirectory)\win7-x86\native</RuntimeWinX86>
-		<RuntimeWinX64>$(RuntimesDirectory)\win7-x64\native</RuntimeWinX64>
+		<RuntimeWinX86>$(RuntimesDirectory)\win-x86\native</RuntimeWinX86>
+		<RuntimeWinX64>$(RuntimesDirectory)\win-x64\native</RuntimeWinX64>
 	</PropertyGroup>
 
 	<ItemGroup Condition="'$(OS)'=='Windows_NT'">
