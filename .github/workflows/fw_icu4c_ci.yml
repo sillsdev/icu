@@ -171,7 +171,7 @@ jobs:
           mv --verbose ../icu-fw* .
           sudo sbuild-adduser runner
           sg sbuild '${CI_SCRIPT_DIR}/bash/build-package \
-            --dists "noble xenial focal bionic" \
+            --dists "noble jammy" \
             --arches "amd64" \
             --main-package-name "icu-fw" \
             --supported-distros "noble jammy" \
