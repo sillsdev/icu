@@ -161,7 +161,7 @@ jobs:
           cd "${WORKSPACE}/"
           version="${{needs.set-version-number.outputs.version}}${{ env.package_suffix }}"
           ${CI_SCRIPT_DIR}/bash/make-source \
-            --dists "noble xenial focal bionic" \
+            --dists "noble jammy" \
             --arches "amd64" \
             --main-package-name "icu-fw" \
             --supported-distros "noble xenial focal bionic" \
