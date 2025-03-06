@@ -161,7 +161,7 @@ jobs:
           cd "${WORKSPACE}/"
           version="${{needs.set-version-number.outputs.version}}${{ env.package_suffix }}"
           ${CI_SCRIPT_DIR}/bash/make-source \
-            --dists "xenial focal bionic" \
+            --dists "noble xenial focal bionic" \
             --arches "amd64" \
             --main-package-name "icu-fw" \
             --supported-distros "noble xenial focal bionic" \
@@ -171,7 +171,7 @@ jobs:
           mv --verbose ../icu-fw* .
           sudo sbuild-adduser runner
           sg sbuild '${CI_SCRIPT_DIR}/bash/build-package \
-            --dists "xenial focal bionic" \
+            --dists "noble xenial focal bionic" \
             --arches "amd64" \
             --main-package-name "icu-fw" \
             --supported-distros "noble xenial focal bionic" \
