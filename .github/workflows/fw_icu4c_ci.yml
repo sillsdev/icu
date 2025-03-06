@@ -164,7 +164,7 @@ jobs:
             --dists "noble jammy" \
             --arches "amd64" \
             --main-package-name "icu-fw" \
-            --supported-distros "noble xenial focal bionic" \
+            --supported-distros "noble jammy" \
             --package-version ${version} \
             --preserve-changelog \
             --build-in-place
