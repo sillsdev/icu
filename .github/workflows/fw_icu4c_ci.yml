@@ -132,6 +132,9 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4.2.2
 
+      - name: Install prerequisites
+        run: sudo add-apt-repository --component universe
+
       - name: Checkout ci-build-tools
         run: |
           set -xueo pipefail
@@ -154,6 +157,7 @@ jobs:
           WORKAREA: /home/runner/work/${{github.event.repository.name}}
         run: |
           set -xueo pipefail
+          sudo add-apt-repository --component universe
           sudo apt-get install -y devscripts dh-make sendmail sbuild
           mkdir --verbose --parents ~/.gnupg
           export WORKSPACE="${WORKAREA}/icu/icu4c"
