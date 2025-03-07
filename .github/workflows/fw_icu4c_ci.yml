@@ -158,6 +158,7 @@ jobs:
         run: |
           set -xueo pipefail
           sudo add-apt-repository --component universe
+          sudo apt update
           sudo apt-get install -y devscripts dh-make sendmail sbuild
           mkdir --verbose --parents ~/.gnupg
           export WORKSPACE="${WORKAREA}/icu/icu4c"
