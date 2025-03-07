@@ -170,6 +170,7 @@ jobs:
             --build-in-place
           mv --verbose ../icu-fw* .
           sudo sbuild-adduser runner
+          sudo gpasswd --remove-password sbuild
           sg sbuild '${CI_SCRIPT_DIR}/bash/build-package \
             --dists "noble jammy" \
             --arches "amd64" \
