@@ -133,7 +133,9 @@ jobs:
         uses: actions/checkout@v4.2.2
 
       - name: Install prerequisites
-        run: sudo add-apt-repository --component universe
+        run: |
+          sudo add-apt-repository --component universe
+          sudo apt-get update
 
       - name: Checkout ci-build-tools
         run: |
@@ -159,7 +161,7 @@ jobs:
           set -xueo pipefail
           sudo add-apt-repository --component universe
           sudo apt update
-          sudo apt-get install -y devscripts dh-make sendmail sbuild
+          sudo apt-get install -y ubuntu-dev-tools devscripts dh-make sendmail sbuild
           mkdir --verbose --parents ~/.gnupg
           export WORKSPACE="${WORKAREA}/icu/icu4c"
           export CI_SCRIPT_DIR="${WORKAREA}/ci-builder-scripts"
