@@ -30,6 +30,7 @@ The ICU project is under the stewardship of [The Unicode Consortium](https://www
 
 #### Subdirectories that we modify and package
 - [`icu4c/`](./icu4c/) [ICU for C/C++](./icu4c/readme.html)
+  - [Android native build guide](./icu4c/packaging/README.android.md)
 #### Subdirectories that we don't care about
 - [`icu4j/`](./icu4j/) [ICU for Java](./icu4j/readme.html)
 - [`tools/`](./tools/) Tools

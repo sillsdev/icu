@@ -125,6 +125,44 @@ jobs:
           echo 'Running ICU4C cintltst'
           make -j2 check
 
+  android-build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      - name: Set up Android SDK command-line tools
+        uses: android-actions/setup-android@v4
+
+      - name: Install Android NDK
+        run: |
+          sdkmanager --install 'ndk;27.0.12077973'
+          echo "ANDROID_NDK_HOME=$ANDROID_HOME/ndk/27.0.12077973" >> "$GITHUB_ENV"
+
+      - name: Cache Android ICU build output
+        uses: actions/cache@v6
+        with:
+          path: icu4c/out/android-icu
+          key: android-icu-${{ runner.os }}-${{ hashFiles('icu4c/packaging/build-android.sh', 'icu4c/source/common/unicode/uvernum.h') }}
+
+      - name: Build Android ICU libraries
+        run: |
+          set -xeo pipefail
+          bash icu4c/packaging/build-android.sh --clean-arch=x86_64 --arch=x86_64,arm64-v8a
+
+      - name: Verify Android ICU output contract
+        run: |
+          set -xeuo pipefail
+          major=$(grep -oP '^#define U_ICU_VERSION_MAJOR_NUM \K[0-9]+' icu4c/source/common/unicode/uvernum.h)
+          test -f "icu4c/out/android-icu/icudt${major}l.dat"
+          for abi in x86_64 arm64-v8a; do
+            for library in libc++_shared.so libicuuc.so libicui18n.so libicudata.so; do
+              test -f "icu4c/out/android-icu/$abi/$library"
+            done
+          done
+
   debian-packaging:
     needs: set-version-number
     runs-on: ubuntu-latest
