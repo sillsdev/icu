@@ -10,6 +10,9 @@ toolchain to cross-compile each requested ABI. It validates native-library
 output only; it does not build or run an Android application, emulator, or
 device test.
 
+CI packs the build into the `Icu4c.Android.Fw.Lib` NuGet package for MAUI /
+.NET Android consumers.
+
 ## Prerequisites
 
 On Linux or macOS install a POSIX shell environment with `bash`, `make`, `sed`,
@@ -58,7 +61,7 @@ Supported ABI values are `x86_64` and `arm64-v8a`. Use `--help` for the full
 command reference. The generated `icu4c/out/` directory is already ignored by
 this repository.
 
-## Output and Android integration
+## Output layout
 
 For the checked-out ICU `70.1`, the output layout is:
 
@@ -84,12 +87,32 @@ they change automatically when this branch advances to a different ICU major.
 The unversioned `.so` files are the names Android APK packaging expects; the
 versioned copies remain alongside them for native dependency compatibility.
 
-Android consumers are responsible for embedding `icudt70l.dat` (or the
-locally-derived replacement after an ICU update) as an app data asset and for
-packaging the ABI-specific, unversioned `libc++_shared.so`, `libicuuc.so`,
-`libicui18n.so`, and `libicudata.so` files in their APK/AAB. This repository
-only produces the native inputs; it does not publish a package or validate an
-application's integration.
+## NuGet package (MAUI / .NET Android)
+
+CI packs unversioned ABI libraries plus `icudt*l.dat` into
+[`Icu4c.Android.Fw.Lib`](https://www.nuget.org/packages/Icu4c.Android.Fw.Lib).
+The major version of the package matches the ICU release (same scheme as
+`Icu4c.Win.Fw.Lib`).
+
+```xml
+<ItemGroup>
+  <PackageReference Include="Icu4c.Android.Fw.Lib" Version="[70.1.0,71.0.0)" />
+</ItemGroup>
+```
+
+The package’s MSBuild targets add `AndroidNativeLibrary` entries for
+`x86_64` and `arm64-v8a` and embed `icudt70l.dat` as an `AndroidAsset`.
+Consumers do not need manual `AndroidNativeLibrary` / `AndroidAsset`
+ItemGroups.
+
+Pack a local `.nupkg` after a successful Android build:
+
+```bash
+bash ./icu4c/packaging/pack-android-nuget.sh --version=70.1.0
+```
+
+Keep the consumer’s ICU major (for example `AndroidIcuBootstrap` in
+icu-dotnet) aligned with the referenced package major.
 
 ## Troubleshooting
 

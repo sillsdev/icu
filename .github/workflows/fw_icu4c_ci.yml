@@ -126,18 +126,27 @@ jobs:
           make -j2 check
 
   android-build:
+    needs: set-version-number
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v7
         with:
           fetch-depth: 1
+          sparse-checkout-cone-mode: false
           sparse-checkout: |
             icu4c/packaging
             icu4c/source
+            icu4c/nugetpackage/assets/android
+            icu4c/LICENSE
 
       - name: Set up Android SDK command-line tools
         uses: android-actions/setup-android@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v6
+        with:
+          dotnet-version: 8.0.x
 
       - name: Install Android NDK
         run: |
@@ -165,6 +174,29 @@ jobs:
               test -f "icu4c/out/android-icu/$abi/$library"
             done
           done
+
+      - name: Pack Android NuGet package
+        run: |
+          set -xeuo pipefail
+          bash icu4c/packaging/pack-android-nuget.sh \
+            --version="${{ needs.set-version-number.outputs.version }}" \
+            --output=icu4c/nugetpackage
+
+      - name: Upload Android NuGet package
+        uses: actions/upload-artifact@v4
+        with:
+          name: android-nuget
+          path: icu4c/nugetpackage/Icu4c.Android.Fw.Lib.*.nupkg
+          if-no-files-found: error
+
+      - name: Publish Android NuGet package
+        if: github.event_name == 'push'
+        run: |
+          set -xeuo pipefail
+          dotnet nuget push icu4c/nugetpackage/Icu4c.Android.Fw.Lib.*.nupkg \
+            --source 'https://api.nuget.org/v3/index.json' \
+            --api-key '${{ secrets.ICU_NUGET_API_KEY }}' \
+            --skip-duplicate
 
   debian-packaging:
     needs: set-version-number

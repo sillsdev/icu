@@ -1,0 +1,9 @@
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+	<PropertyGroup>
+		<!-- Must match the ICU major shipped in this package (and AndroidIcuBootstrap). -->
+		<IcuFwAndroidMajorVersion Condition="'$(IcuFwAndroidMajorVersion)' == ''">70</IcuFwAndroidMajorVersion>
+		<IcuFwAndroidPackageDir>$(MSBuildThisFileDirectory)</IcuFwAndroidPackageDir>
+		<IcuFwAndroidNativeDir>$(IcuFwAndroidPackageDir)native\</IcuFwAndroidNativeDir>
+		<IcuFwAndroidAssetsDir>$(IcuFwAndroidPackageDir)assets\</IcuFwAndroidAssetsDir>
+	</PropertyGroup>
+</Project>
