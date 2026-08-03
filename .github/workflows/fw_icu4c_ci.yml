@@ -23,7 +23,7 @@ jobs:
       version: ${{ steps.calc-version.outputs.result }}
     steps:
     - name: Checkout
-      uses: actions/checkout@v4.2.2
+      uses: actions/checkout@v7
       with:
         fetch-depth: 0
 
@@ -33,7 +33,7 @@ jobs:
         major=$(grep -oP '.*U_ICU_VERSION_MAJOR_NUM \K.*' icu4c/source/common/unicode/uvernum.h)
         minor=$(grep -oP '.*U_ICU_VERSION_MINOR_NUM \K.*' icu4c/source/common/unicode/uvernum.h)
         build=${{ github.run_number }}
-        echo "::set-output name=result::$major.$minor.$build"
+        echo "result=$major.$minor.$build" >> "$GITHUB_OUTPUT"
 
   win-build-test-package:
     needs: set-version-number
@@ -47,13 +47,13 @@ jobs:
         echo "Version ${{ needs.set-version-number.outputs.version }}"
 
     - name: Checkout
-      uses: actions/checkout@v4.2.2
+      uses: actions/checkout@v7
       with:
         fetch-depth: 0
 
     # Add  MSBuild to the PATH: https://github.com/microsoft/setup-msbuild
     - name: Setup MSBuild.exe (Windows OS)
-      uses: microsoft/setup-msbuild@v2
+      uses: microsoft/setup-msbuild@v3
 
     - name: Build ICU 32 bit
       working-directory: icu4c
@@ -89,7 +89,7 @@ jobs:
       run: msbuild nugetpackage/build/icu4c.proj /t:BuildPackage /p:PkgVersion=${{ needs.set-version-number.outputs.version }}
 
     - name: Upload Artifacts
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v7
       with:
         name: packages
         path: ./**/*.nupkg
@@ -107,7 +107,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v4.2.2
+        uses: actions/checkout@v7
         with:
           fetch-depth: 0
 
@@ -130,7 +130,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v4.2.2
+        uses: actions/checkout@v7
 
       - name: Install prerequisites
         run: |
@@ -145,11 +145,11 @@ jobs:
 
       - name: Set experimental Suffix for PR Builds
         if: github.event_name != 'push'
-        run: echo "package_suffix=.experimental" >> $GITHUB_ENV 
+        run: echo "package_suffix=.experimental" >> $GITHUB_ENV
 
       # TODO more will need done to do this successfully since some files are root readable only
       - name: Cache
-        uses: actions/cache@v4
+        uses: actions/cache@v6
         with:
           path: /var/lib/schroot/chroots
           key: icu-debian-package-${{ github.ref_name }}
@@ -160,7 +160,7 @@ jobs:
         run: |
           set -xueo pipefail
           sudo add-apt-repository --component universe
-          sudo apt update
+          sudo apt-get update
           sudo apt-get install -y ubuntu-dev-tools devscripts dh-make sendmail sbuild
           mkdir --verbose --parents ~/.gnupg
           export WORKSPACE="${WORKAREA}/icu/icu4c"
@@ -187,7 +187,7 @@ jobs:
             --no-upload'
 
       - name: Upload Artifacts
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: linux-packages
           path: |
