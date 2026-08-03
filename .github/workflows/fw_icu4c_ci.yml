@@ -162,7 +162,6 @@ jobs:
           sudo add-apt-repository --component universe
           sudo apt-get update
           sudo apt-get install -y ubuntu-dev-tools devscripts dh-make sendmail sbuild
-          mkdir --verbose --parents ~/.gnupg
           export WORKSPACE="${WORKAREA}/icu/icu4c"
           export CI_SCRIPT_DIR="${WORKAREA}/ci-builder-scripts"
           cd "${WORKSPACE}/"
@@ -178,6 +177,8 @@ jobs:
           mv --verbose ../icu-fw* .
           sudo sbuild-adduser runner
           sudo gpasswd --remove-password sbuild
+          # Do not pre-create ~/.gnupg: ci-builder-scripts setup.sh ends with
+          # `[ ! -d ~/.gnupg ] && mkdir ...` and set -e aborts if the dir exists.
           sg sbuild '${CI_SCRIPT_DIR}/bash/build-package \
             --dists "noble jammy" \
             --arches "amd64" \
