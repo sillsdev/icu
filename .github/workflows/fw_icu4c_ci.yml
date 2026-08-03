@@ -131,7 +131,10 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v7
         with:
-          fetch-depth: 0
+          fetch-depth: 1
+          sparse-checkout: |
+            icu4c/packaging
+            icu4c/source
 
       - name: Set up Android SDK command-line tools
         uses: android-actions/setup-android@v4
