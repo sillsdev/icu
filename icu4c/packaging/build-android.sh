@@ -136,7 +136,10 @@ build_host_icu() {
 }
 
 install_icu_data_file() {
-    local major="$1" dat_name="icudt${major}l.dat" dat_src
+    # Declare separately: bash unsets all names in one `local` before assigning.
+    local major="$1"
+    local dat_name="icudt${major}l.dat"
+    local dat_src
     dat_src="$(find "$HOST_BUILD_DIR/data/out" -type f -name "$dat_name" -print -quit)"
     [[ -n "$dat_src" ]] || die "Missing generated ICU data file $dat_name"
     cp -f "$dat_src" "$OUTPUT_DIR/$dat_name"
