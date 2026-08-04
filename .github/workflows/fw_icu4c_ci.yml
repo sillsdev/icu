@@ -39,7 +39,9 @@ jobs:
     needs: set-version-number
     strategy:
       fail-fast: false
-    runs-on: windows-latest
+    # Pin to windows-2022: windows-latest is now Server 2025 / VS2026, which
+    # breaks ICU 70 DataDrivenCalendarTest Chinese calendar month rolls.
+    runs-on: windows-2022
 
     steps:
     - name: Verify Version
@@ -177,15 +179,21 @@ jobs:
           mv --verbose ../icu-fw* .
           sudo sbuild-adduser runner
           sudo gpasswd --remove-password sbuild
-          # Do not pre-create ~/.gnupg: ci-builder-scripts setup.sh ends with
-          # `[ ! -d ~/.gnupg ] && mkdir ...` and set -e aborts if the dir exists.
-          sg sbuild '${CI_SCRIPT_DIR}/bash/build-package \
-            --dists "noble jammy" \
-            --arches "amd64" \
-            --main-package-name "icu-fw" \
-            --supported-distros "noble jammy" \
-            --build-in-place \
-            --no-upload'
+          # ci-builder-scripts setup.sh ends checkAndInstallRequirements with
+          # `[ ! -d ~/.gnupg ] && mkdir ...`. Under set -e that returns 1 when
+          # ~/.gnupg already exists, so creating a second chroot in one
+          # build-package invocation aborts. Build one distro at a time and
+          # clear ~/.gnupg between runs. Do not pre-create ~/.gnupg either.
+          for dist in noble jammy; do
+            rm -rf "${HOME}/.gnupg"
+            sg sbuild "${CI_SCRIPT_DIR}/bash/build-package \
+              --dists ${dist} \
+              --arches amd64 \
+              --main-package-name icu-fw \
+              --supported-distros 'noble jammy' \
+              --build-in-place \
+              --no-upload"
+          done
 
       - name: Upload Artifacts
         uses: actions/upload-artifact@v7
