@@ -39,9 +39,7 @@ jobs:
     needs: set-version-number
     strategy:
       fail-fast: false
-    # Pin to windows-2022: windows-latest is now Server 2025 / VS2026, which
-    # breaks ICU 70 DataDrivenCalendarTest Chinese calendar month rolls.
-    runs-on: windows-2022
+    runs-on: windows-latest
 
     steps:
     - name: Verify Version
