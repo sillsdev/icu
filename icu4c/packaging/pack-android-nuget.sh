@@ -45,6 +45,7 @@ done
 [[ -f "$ICU4C_DIR/LICENSE" ]] || die "Missing LICENSE at $ICU4C_DIR/LICENSE"
 
 command -v dotnet >/dev/null || die "dotnet SDK is required to pack the NuGet package"
+command -v unzip >/dev/null || die "unzip is required to verify the NuGet package layout"
 
 STAGE_DIR="$(mktemp -d "${TMPDIR:-/tmp}/icu-android-nuget.XXXXXX")"
 cleanup() { rm -rf "$STAGE_DIR"; }
@@ -84,6 +85,8 @@ done
 
 # SDK-style pack project so Linux CI can pack without mono/nuget.exe.
 # Metadata intentionally mirrors icu-android-fw-lib.nuspec (reference copy).
+# PackagePath must include %(RecursiveDir) or native/<abi>/ and assets/ flatten
+# into build/ and the consumer Exists() checks silently fail.
 cat > "$STAGE_DIR/Icu4c.Android.Fw.Lib.csproj" <<EOF
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
@@ -105,7 +108,7 @@ cat > "$STAGE_DIR/Icu4c.Android.Fw.Lib.csproj" <<EOF
   </PropertyGroup>
   <ItemGroup>
     <None Include="LICENSE" Pack="true" PackagePath="" />
-    <None Include="build\**\*" Pack="true" PackagePath="build\" />
+    <None Include="build/**/*" Pack="true" PackagePath="build/%(RecursiveDir)" />
   </ItemGroup>
 </Project>
 EOF
@@ -118,4 +121,20 @@ dotnet pack "$STAGE_DIR/Icu4c.Android.Fw.Lib.csproj" \
 
 nupkg="$OUTPUT_DIR/Icu4c.Android.Fw.Lib.$PKG_VERSION.nupkg"
 [[ -f "$nupkg" ]] || die "Expected package not found: $nupkg"
+
+verify_dir="$(mktemp -d "${TMPDIR:-/tmp}/icu-android-nuget-verify.XXXXXX")"
+unzip -q "$nupkg" -d "$verify_dir"
+[[ -f "$verify_dir/build/Icu4c.Android.Fw.Lib.props" ]] || die "nupkg missing build props"
+[[ -f "$verify_dir/build/Icu4c.Android.Fw.Lib.targets" ]] || die "nupkg missing build targets"
+[[ -f "$verify_dir/build/assets/icudt${ICU_MAJOR}l.dat" ]] || die "nupkg missing build/assets/icudt${ICU_MAJOR}l.dat"
+for abi in "${ABI_LIST[@]}"; do
+    abi="$(echo "$abi" | xargs)"
+    [[ -z "$abi" ]] && continue
+    for library in libc++_shared.so libicuuc.so libicui18n.so libicudata.so; do
+        [[ -f "$verify_dir/build/native/$abi/$library" ]] \
+            || die "nupkg missing build/native/$abi/$library"
+    done
+done
+rm -rf "$verify_dir"
+
 log "Created $nupkg"
