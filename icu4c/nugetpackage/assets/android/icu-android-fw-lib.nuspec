@@ -20,7 +20,7 @@ The major version number of the nuget package corresponds to the ICU release.
 		</description>
 		<language>en-US</language>
 		<releaseNotes>
-70.1.0 - Initial Android package for MAUI / .NET Android (x86_64, arm64-v8a)
+$version$ - FieldWorks ICU Android natives (x86_64, arm64-v8a) plus icudt*l.dat
 		</releaseNotes>
 		<references/>
 	</metadata>

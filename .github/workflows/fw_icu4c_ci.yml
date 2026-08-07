@@ -157,12 +157,12 @@ jobs:
         uses: actions/cache@v6
         with:
           path: icu4c/out/android-icu
-          key: android-icu-${{ runner.os }}-${{ hashFiles('icu4c/packaging/build-android.sh', 'icu4c/source/common/unicode/uvernum.h') }}
+          key: android-icu-${{ runner.os }}-${{ hashFiles('icu4c/packaging/build-android.sh', 'icu4c/packaging/pack-android-nuget.sh', 'icu4c/source/common/unicode/uvernum.h', 'icu4c/source/configure') }}
 
       - name: Build Android ICU libraries
         run: |
           set -xeo pipefail
-          bash icu4c/packaging/build-android.sh --clean-arch=x86_64 --arch=x86_64,arm64-v8a
+          bash icu4c/packaging/build-android.sh --arch=x86_64,arm64-v8a
 
       - name: Verify Android ICU output contract
         run: |

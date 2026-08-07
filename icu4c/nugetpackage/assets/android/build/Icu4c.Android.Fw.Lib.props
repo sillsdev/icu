@@ -1,9 +1,10 @@
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
 	<PropertyGroup>
-		<!-- Must match the ICU major shipped in this package (and AndroidIcuBootstrap). -->
+		<!-- Stamped at pack time; consumers (e.g. AndroidIcuBootstrap) may read this. -->
 		<IcuFwAndroidMajorVersion Condition="'$(IcuFwAndroidMajorVersion)' == ''">70</IcuFwAndroidMajorVersion>
 		<IcuFwAndroidPackageDir>$(MSBuildThisFileDirectory)</IcuFwAndroidPackageDir>
-		<IcuFwAndroidNativeDir>$(IcuFwAndroidPackageDir)native\</IcuFwAndroidNativeDir>
-		<IcuFwAndroidAssetsDir>$(IcuFwAndroidPackageDir)assets\</IcuFwAndroidAssetsDir>
+		<!-- Forward slashes: MSBuild normalizes these on Windows and Unix. -->
+		<IcuFwAndroidNativeDir>$(IcuFwAndroidPackageDir)native/</IcuFwAndroidNativeDir>
+		<IcuFwAndroidAssetsDir>$(IcuFwAndroidPackageDir)assets/</IcuFwAndroidAssetsDir>
 	</PropertyGroup>
 </Project>

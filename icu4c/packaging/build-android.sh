@@ -19,6 +19,11 @@ Usage: $0 [options]
 
 Build the checked-out ICU4C source for Android. No ICU release is downloaded.
 
+Data packaging uses --with-data-packaging=archive: libicudata.so is the stub
+library, and locale data is the separate icudt*l.dat file (for AndroidAsset /
+udata_setCommonData). Shared libraries are linked with unversioned SONAMEs so
+APK packaging of lib*.so alone works with the Android loader.
+
 Options:
   --arch=LIST       Comma-separated ABIs: x86_64, arm64-v8a (default: x86_64)
   --api=LEVEL       Minimum Android API (default: 21)
@@ -109,29 +114,33 @@ copy_ndk_cpp_shared() {
     cp -f "$cxx_lib" "$install_dir/"
 }
 
+# Copy versioned ICU shared objects to the unversioned lib*.so names Android
+# packages. SONAMEs are already unversioned (see build_android_arch make override).
 install_android_apk_libs() {
-    local install_dir="$1" major="$2" lib src
+    local install_dir="$1" lib src
     for lib in icuuc icui18n icudata; do
-        src="$(find "$install_dir" -maxdepth 1 -type f -name "lib${lib}.so.*" -print | sort -V | tail -1)"
+        src="$(find "$install_dir" -maxdepth 1 -type f -name "lib${lib}.so.*" -print 2>/dev/null | sort -V | tail -1 || true)"
         [[ -n "$src" ]] || die "Missing lib${lib} in $install_dir"
         cp -f "$src" "$install_dir/lib${lib}.so"
-        cp -f "$src" "$install_dir/lib${lib}.so.$major"
     done
 }
 
 build_host_icu() {
-    if [[ -f "$HOST_BUILD_DIR/icu_build/lib/libicuuc.so" || -f "$HOST_BUILD_DIR/icu_build/lib/libicuuc.a" ]]; then
-        log "Host ICU build already present"
-        return
-    fi
-    log "Building host ICU tools from $ICU_SRC_DIR"
+    local host_plat
     mkdir -p "$HOST_BUILD_DIR"
     pushd "$HOST_BUILD_DIR" >/dev/null
-    "$ICU_SRC_DIR/runConfigureICU" "$(host_platform)" \
-        --enable-static=no --enable-shared=yes --enable-tests=no \
-        --enable-samples=no --enable-extras=no --enable-draft=yes \
-        --prefix="$HOST_BUILD_DIR/icu_build"
+    if [[ ! -f config/icucross.mk ]]; then
+        host_plat="$(host_platform)"
+        log "Configuring host ICU tools from $ICU_SRC_DIR"
+        "$ICU_SRC_DIR/runConfigureICU" "$host_plat" \
+            --enable-static=no --enable-shared=yes --enable-tests=no \
+            --enable-samples=no --enable-extras=no --enable-draft=yes \
+            --prefix="$HOST_BUILD_DIR/icu_build"
+    else
+        log "Host ICU already configured; rebuilding incrementally"
+    fi
     make -j"$(parallel_jobs)"
+    [[ -f config/icucross.mk ]] || die "Host build did not produce config/icucross.mk"
     popd >/dev/null
 }
 
@@ -140,13 +149,13 @@ install_icu_data_file() {
     local major="$1"
     local dat_name="icudt${major}l.dat"
     local dat_src
-    dat_src="$(find "$HOST_BUILD_DIR/data/out" -type f -name "$dat_name" -print -quit)"
-    [[ -n "$dat_src" ]] || die "Missing generated ICU data file $dat_name"
+    dat_src="$(find "$HOST_BUILD_DIR/data/out" -type f -name "$dat_name" -print -quit 2>/dev/null || true)"
+    [[ -n "$dat_src" ]] || die "Missing generated ICU data file $dat_name under $HOST_BUILD_DIR/data/out"
     cp -f "$dat_src" "$OUTPUT_DIR/$dat_name"
 }
 
 build_android_arch() {
-    local abi="$1" ndk="$2" host_tag="$3" major="$4"
+    local abi="$1" ndk="$2" host_tag="$3"
     local target build_dir install_dir toolchain
     target="$(arch_to_target "$abi")"
     build_dir="$OUTPUT_DIR/build/android/$abi"
@@ -161,16 +170,33 @@ build_android_arch() {
     export AR="$toolchain/bin/llvm-ar"
     export RANLIB="$toolchain/bin/llvm-ranlib"
     export LDFLAGS="-Wl,--gc-sections -Wl,-z,max-page-size=16384"
-    "$ICU_SRC_DIR/configure" \
-        --with-cross-build="$HOST_BUILD_DIR" --host="$target" \
-        --enable-static=no --enable-shared=yes --enable-tests=no \
-        --enable-samples=no --enable-extras=no --enable-draft=yes \
-        --with-data-packaging=dll
-    make -j"$(parallel_jobs)"
-    cp -f "$build_dir/lib"/libicu*.so* "$install_dir/"
-    [[ -d "$build_dir/stubdata" ]] && cp -f "$build_dir/stubdata"/libicudata*.so* "$install_dir/" || true
+    if [[ ! -f config.status ]] || ! grep -qE '^PKGDATA_MODE=common$' icudefs.mk 2>/dev/null; then
+        # archive packaging => PKGDATA_MODE=common (stub libicudata + .dat)
+        rm -f config.status
+        "$ICU_SRC_DIR/configure" \
+            --with-cross-build="$HOST_BUILD_DIR" --host="$target" \
+            --enable-static=no --enable-shared=yes --enable-tests=no \
+            --enable-samples=no --enable-extras=no --enable-draft=yes \
+            --with-data-packaging=archive
+    fi
+    # Override mh-linux SONAME (MIDDLE_SO_TARGET / libicu*.so.N) so DT_NEEDED
+    # entries match the unversioned lib*.so names Android packages into the APK.
+    make -j"$(parallel_jobs)" \
+        'LD_SONAME=-Wl,-soname -Wl,$(notdir $(SO_TARGET))'
+
+    rm -f "$install_dir"/libicu*.so*
+    # With archive packaging, libicudata is the stub (data lives in icudt*l.dat).
+    # Prefer stubdata/ explicitly; also copy other ICU libs from lib/.
+    cp -f "$build_dir/lib"/libicuuc.so* "$install_dir/" 2>/dev/null || die "Missing libicuuc in $build_dir/lib"
+    cp -f "$build_dir/lib"/libicui18n.so* "$install_dir/" 2>/dev/null || die "Missing libicui18n in $build_dir/lib"
+    if [[ -d "$build_dir/stubdata" ]]; then
+        cp -f "$build_dir/stubdata"/libicudata.so* "$install_dir/" \
+            || die "Missing stub libicudata in $build_dir/stubdata"
+    else
+        die "Missing stubdata directory in $build_dir"
+    fi
     copy_ndk_cpp_shared "$ndk" "$host_tag" "$target" "$install_dir"
-    install_android_apk_libs "$install_dir" "$major"
+    install_android_apk_libs "$install_dir"
     popd >/dev/null
 }
 
@@ -216,6 +242,6 @@ install_icu_data_file "$MAJOR"
 IFS=',' read -ra ARCH_LIST <<< "$ARCHS"
 for abi in "${ARCH_LIST[@]}"; do
     abi="$(echo "$abi" | xargs)"; [[ -z "$abi" ]] && continue
-    build_android_arch "$abi" "$NDK" "$HOST_TAG" "$MAJOR"
+    build_android_arch "$abi" "$NDK" "$HOST_TAG"
 done
 log "Done. APK-ready libraries are in $OUTPUT_DIR/{abi}/"

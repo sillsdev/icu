@@ -65,6 +65,8 @@ ICU_MAJOR="${BASH_REMATCH[1]}"
 sed -i.bak "s/<IcuFwAndroidMajorVersion Condition=\"'\$(IcuFwAndroidMajorVersion)' == ''\">[0-9][0-9]*<\/IcuFwAndroidMajorVersion>/<IcuFwAndroidMajorVersion Condition=\"'\$(IcuFwAndroidMajorVersion)' == ''\">${ICU_MAJOR}<\/IcuFwAndroidMajorVersion>/" \
     "$STAGE_DIR/build/Icu4c.Android.Fw.Lib.props"
 rm -f "$STAGE_DIR/build/Icu4c.Android.Fw.Lib.props.bak"
+grep -q ">${ICU_MAJOR}</IcuFwAndroidMajorVersion>" "$STAGE_DIR/build/Icu4c.Android.Fw.Lib.props" \
+    || die "Failed to stamp IcuFwAndroidMajorVersion=${ICU_MAJOR} into props"
 
 IFS=',' read -ra ABI_LIST <<< "$ABIS"
 for abi in "${ABI_LIST[@]}"; do
@@ -81,7 +83,7 @@ for abi in "${ABI_LIST[@]}"; do
 done
 
 # SDK-style pack project so Linux CI can pack without mono/nuget.exe.
-# Metadata mirrors icu-android-fw-lib.nuspec.
+# Metadata intentionally mirrors icu-android-fw-lib.nuspec (reference copy).
 cat > "$STAGE_DIR/Icu4c.Android.Fw.Lib.csproj" <<EOF
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
@@ -98,7 +100,7 @@ cat > "$STAGE_DIR/Icu4c.Android.Fw.Lib.csproj" <<EOF
     <PackageLicenseFile>LICENSE</PackageLicenseFile>
     <PackageTags>native;android;maui</PackageTags>
     <Description>FieldWorks ICU4C shared libraries for Android (x86_64, arm64-v8a) for MAUI / .NET Android apps. The major version number corresponds to the ICU release.</Description>
-    <PackageReleaseNotes>70.1.0 - Initial Android package for MAUI / .NET Android (x86_64, arm64-v8a)</PackageReleaseNotes>
+    <PackageReleaseNotes>$PKG_VERSION - FieldWorks ICU $ICU_MAJOR Android natives (x86_64, arm64-v8a) plus icudt${ICU_MAJOR}l.dat</PackageReleaseNotes>
     <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
   </PropertyGroup>
   <ItemGroup>

@@ -5,13 +5,14 @@
 	-->
 	<ItemGroup Condition="'$(TargetPlatformIdentifier)' == 'android'">
 		<AndroidNativeLibrary
-			Include="$(IcuFwAndroidNativeDir)x86_64\*.so"
-			Condition="Exists('$(IcuFwAndroidNativeDir)x86_64\libicuuc.so')" />
+			Include="$(IcuFwAndroidNativeDir)x86_64/*.so"
+			Condition="Exists('$(IcuFwAndroidNativeDir)x86_64/libicuuc.so')" />
 		<AndroidNativeLibrary
-			Include="$(IcuFwAndroidNativeDir)arm64-v8a\*.so"
-			Condition="Exists('$(IcuFwAndroidNativeDir)arm64-v8a\libicuuc.so')" />
+			Include="$(IcuFwAndroidNativeDir)arm64-v8a/*.so"
+			Condition="Exists('$(IcuFwAndroidNativeDir)arm64-v8a/libicuuc.so')" />
 
-		<AndroidAsset Include="$(IcuFwAndroidAssetsDir)icudt*l.dat">
+		<AndroidAsset Include="$(IcuFwAndroidAssetsDir)icudt$(IcuFwAndroidMajorVersion)l.dat"
+			Condition="Exists('$(IcuFwAndroidAssetsDir)icudt$(IcuFwAndroidMajorVersion)l.dat')">
 			<LogicalName>%(Filename)%(Extension)</LogicalName>
 		</AndroidAsset>
 	</ItemGroup>

@@ -73,19 +73,22 @@ icu4c/out/android-icu/
     libicuuc.so
     libicui18n.so
     libicudata.so
-    libicu*.so.70[.1]
   arm64-v8a/
     libc++_shared.so
     libicuuc.so
     libicui18n.so
     libicudata.so
-    libicu*.so.70[.1]
 ```
 
+Cross builds use `--with-data-packaging=archive`, so `libicudata.so` is the
+**stub** data library. Locale data lives in `icudt*l.dat`. Consumers (for
+example `AndroidIcuBootstrap` in icu-dotnet) must load that file via
+`udata_setCommonData` (or equivalent) before using ICU.
+
+Shared libraries are linked with **unversioned** SONAMEs (`libicuuc.so`, and so
+on) so Android APK packaging of those file names alone satisfies `DT_NEEDED`.
 The library major and data-file name are derived from the local ICU source, so
 they change automatically when this branch advances to a different ICU major.
-The unversioned `.so` files are the names Android APK packaging expects; the
-versioned copies remain alongside them for native dependency compatibility.
 
 ## NuGet package (MAUI / .NET Android)
 
@@ -103,7 +106,9 @@ The major version of the package matches the ICU release (same scheme as
 The package’s MSBuild targets add `AndroidNativeLibrary` entries for
 `x86_64` and `arm64-v8a` and embed `icudt70l.dat` as an `AndroidAsset`.
 Consumers do not need manual `AndroidNativeLibrary` / `AndroidAsset`
-ItemGroups.
+ItemGroups. The props file also stamps `IcuFwAndroidMajorVersion` for
+consumers that need the ICU major (for example aligning
+`AndroidIcuBootstrap`).
 
 Pack a local `.nupkg` after a successful Android build:
 
@@ -122,3 +127,5 @@ icu-dotnet) aligned with the referenced package major.
   macOS.
 - Use `--clean` after changing host compilers, NDK versions, or ICU source
   configuration to ensure host tools and cross-build output are recreated.
+- ICU operations that need locale data will fail until the app loads
+  `icudt*l.dat` into ICU (stub `libicudata.so` alone is not enough).
