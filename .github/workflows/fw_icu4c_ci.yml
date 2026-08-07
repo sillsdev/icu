@@ -23,7 +23,7 @@ jobs:
       version: ${{ steps.calc-version.outputs.result }}
     steps:
     - name: Checkout
-      uses: actions/checkout@v2.3.4
+      uses: actions/checkout@v7
       with:
         fetch-depth: 0
 
@@ -33,7 +33,7 @@ jobs:
         major=$(grep -oP '.*U_ICU_VERSION_MAJOR_NUM \K.*' icu4c/source/common/unicode/uvernum.h)
         minor=$(grep -oP '.*U_ICU_VERSION_MINOR_NUM \K.*' icu4c/source/common/unicode/uvernum.h)
         build=${{ github.run_number }}
-        echo "::set-output name=result::$major.$minor.$build"
+        echo "result=$major.$minor.$build" >> "$GITHUB_OUTPUT"
 
   win-build-test-package:
     needs: set-version-number
@@ -47,13 +47,13 @@ jobs:
         echo "Version ${{ needs.set-version-number.outputs.version }}"
 
     - name: Checkout
-      uses: actions/checkout@v2.3.4
+      uses: actions/checkout@v7
       with:
         fetch-depth: 0
 
     # Add  MSBuild to the PATH: https://github.com/microsoft/setup-msbuild
     - name: Setup MSBuild.exe (Windows OS)
-      uses: microsoft/setup-msbuild@v1.1
+      uses: microsoft/setup-msbuild@v3
 
     - name: Build ICU 32 bit
       working-directory: icu4c
@@ -89,7 +89,7 @@ jobs:
       run: msbuild nugetpackage/build/icu4c.proj /t:BuildPackage /p:PkgVersion=${{ needs.set-version-number.outputs.version }}
 
     - name: Upload Artifacts
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v7
       with:
         name: packages
         path: ./**/*.nupkg
@@ -107,7 +107,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v2.3.4
+        uses: actions/checkout@v7
         with:
           fetch-depth: 0
 
@@ -130,7 +130,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v2.3.4
+        uses: actions/checkout@v7
+
+      - name: Install prerequisites
+        run: |
+          sudo add-apt-repository --component universe
+          sudo apt-get update
 
       - name: Checkout ci-build-tools
         run: |
@@ -140,11 +145,11 @@ jobs:
 
       - name: Set experimental Suffix for PR Builds
         if: github.event_name != 'push'
-        run: echo "package_suffix=.experimental" >> $GITHUB_ENV 
+        run: echo "package_suffix=.experimental" >> $GITHUB_ENV
 
       # TODO more will need done to do this successfully since some files are root readable only
       - name: Cache
-        uses: actions/cache@v2
+        uses: actions/cache@v6
         with:
           path: /var/lib/schroot/chroots
           key: icu-debian-package-${{ github.ref_name }}
@@ -154,32 +159,42 @@ jobs:
           WORKAREA: /home/runner/work/${{github.event.repository.name}}
         run: |
           set -xueo pipefail
-          sudo apt-get install -y devscripts dh-make sendmail sbuild
-          mkdir --verbose --parents ~/.gnupg
+          sudo add-apt-repository --component universe
+          sudo apt-get update
+          sudo apt-get install -y ubuntu-dev-tools devscripts dh-make sendmail sbuild
           export WORKSPACE="${WORKAREA}/icu/icu4c"
           export CI_SCRIPT_DIR="${WORKAREA}/ci-builder-scripts"
           cd "${WORKSPACE}/"
           version="${{needs.set-version-number.outputs.version}}${{ env.package_suffix }}"
           ${CI_SCRIPT_DIR}/bash/make-source \
-            --dists "xenial focal bionic" \
+            --dists "noble jammy" \
             --arches "amd64" \
             --main-package-name "icu-fw" \
-            --supported-distros "xenial focal bionic" \
+            --supported-distros "noble jammy" \
             --package-version ${version} \
             --preserve-changelog \
             --build-in-place
           mv --verbose ../icu-fw* .
           sudo sbuild-adduser runner
-          sg sbuild '${CI_SCRIPT_DIR}/bash/build-package \
-            --dists "xenial focal bionic" \
-            --arches "amd64" \
-            --main-package-name "icu-fw" \
-            --supported-distros "xenial focal bionic" \
-            --build-in-place \
-            --no-upload'
+          sudo gpasswd --remove-password sbuild
+          # ci-builder-scripts setup.sh ends checkAndInstallRequirements with
+          # `[ ! -d ~/.gnupg ] && mkdir ...`. Under set -e that returns 1 when
+          # ~/.gnupg already exists, so creating a second chroot in one
+          # build-package invocation aborts. Build one distro at a time and
+          # clear ~/.gnupg between runs. Do not pre-create ~/.gnupg either.
+          for dist in noble jammy; do
+            rm -rf "${HOME}/.gnupg"
+            sg sbuild "${CI_SCRIPT_DIR}/bash/build-package \
+              --dists ${dist} \
+              --arches amd64 \
+              --main-package-name icu-fw \
+              --supported-distros 'noble jammy' \
+              --build-in-place \
+              --no-upload"
+          done
 
       - name: Upload Artifacts
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v7
         with:
           name: linux-packages
           path: |
