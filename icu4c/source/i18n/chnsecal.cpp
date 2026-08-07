@@ -338,9 +338,13 @@ int32_t ChineseCalendar::handleComputeMonthStart(int32_t eyear, int32_t month, U
     
     int32_t julianDay = newMoon + kEpochStartAsJulianDay;
 
-    // Save fields for later restoration
+    // Save fields for later restoration. computeChineseFields() also updates
+    // the isLeapYear member as a side effect; restore that too so callers like
+    // roll() that depend on leap-year state for the current date are not
+    // corrupted when get() resolves month starts for other months.
     int32_t saveMonth = internalGet(UCAL_MONTH);
     int32_t saveIsLeapMonth = internalGet(UCAL_IS_LEAP_MONTH);
+    UBool saveIsLeapYear = isLeapYear;
 
     // Ignore IS_LEAP_MONTH field if useMonth is false
     int32_t isLeapMonth = useMonth ? saveIsLeapMonth : 0;
@@ -350,7 +354,7 @@ int32_t ChineseCalendar::handleComputeMonthStart(int32_t eyear, int32_t month, U
     if (U_FAILURE(status))
         return 0;
     
-    // This will modify the MONTH and IS_LEAP_MONTH fields (only)
+    // This will modify the MONTH and IS_LEAP_MONTH and isLeapYear fields (only)
     nonConstThis->computeChineseFields(newMoon, getGregorianYear(),
                          getGregorianMonth(), FALSE);        
 
@@ -362,6 +366,7 @@ int32_t ChineseCalendar::handleComputeMonthStart(int32_t eyear, int32_t month, U
 
     nonConstThis->internalSet(UCAL_MONTH, saveMonth);
     nonConstThis->internalSet(UCAL_IS_LEAP_MONTH, saveIsLeapMonth);
+    nonConstThis->isLeapYear = saveIsLeapYear;
 
     return julianDay - 1;
 }
