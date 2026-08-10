@@ -83,10 +83,21 @@ for abi in "${ABI_LIST[@]}"; do
     done
 done
 
-# SDK-style pack project so Linux CI can pack without mono/nuget.exe.
-# Metadata intentionally mirrors icu-android-fw-lib.nuspec (reference copy).
-# PackagePath must include %(RecursiveDir) or native/<abi>/ and assets/ flatten
-# into build/ and the consumer Exists() checks silently fail.
+# Emit explicit PackagePath entries per folder. A single build/** with
+# PackagePath=build/%(RecursiveDir) still dropped build/assets in CI.
+pack_items="$(mktemp "${TMPDIR:-/tmp}/icu-android-nuget-items.XXXXXX")"
+{
+    echo '    <None Include="LICENSE" Pack="true" PackagePath="" />'
+    echo '    <None Include="build/Icu4c.Android.Fw.Lib.props" Pack="true" PackagePath="build/" />'
+    echo '    <None Include="build/Icu4c.Android.Fw.Lib.targets" Pack="true" PackagePath="build/" />'
+    echo '    <None Include="build/assets/*" Pack="true" PackagePath="build/assets/" />'
+    for abi in "${ABI_LIST[@]}"; do
+        abi="$(echo "$abi" | xargs)"
+        [[ -z "$abi" ]] && continue
+        echo "    <None Include=\"build/native/${abi}/*\" Pack=\"true\" PackagePath=\"build/native/${abi}/\" />"
+    done
+} > "$pack_items"
+
 cat > "$STAGE_DIR/Icu4c.Android.Fw.Lib.csproj" <<EOF
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
@@ -107,11 +118,11 @@ cat > "$STAGE_DIR/Icu4c.Android.Fw.Lib.csproj" <<EOF
     <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
   </PropertyGroup>
   <ItemGroup>
-    <None Include="LICENSE" Pack="true" PackagePath="" />
-    <None Include="build/**/*" Pack="true" PackagePath="build/%(RecursiveDir)" />
+$(cat "$pack_items")
   </ItemGroup>
 </Project>
 EOF
+rm -f "$pack_items"
 
 mkdir -p "$OUTPUT_DIR"
 log "Packing Icu4c.Android.Fw.Lib $PKG_VERSION from $INPUT_DIR"
@@ -124,15 +135,22 @@ nupkg="$OUTPUT_DIR/Icu4c.Android.Fw.Lib.$PKG_VERSION.nupkg"
 
 verify_dir="$(mktemp -d "${TMPDIR:-/tmp}/icu-android-nuget-verify.XXXXXX")"
 unzip -q "$nupkg" -d "$verify_dir"
-[[ -f "$verify_dir/build/Icu4c.Android.Fw.Lib.props" ]] || die "nupkg missing build props"
-[[ -f "$verify_dir/build/Icu4c.Android.Fw.Lib.targets" ]] || die "nupkg missing build targets"
-[[ -f "$verify_dir/build/assets/icudt${ICU_MAJOR}l.dat" ]] || die "nupkg missing build/assets/icudt${ICU_MAJOR}l.dat"
+fail_verify() {
+    echo "[pack-android-nuget] ERROR: $*" >&2
+    echo "[pack-android-nuget] Package contents:" >&2
+    (cd "$verify_dir" && find . -type f | sort) >&2 || true
+    rm -rf "$verify_dir"
+    exit 1
+}
+[[ -f "$verify_dir/build/Icu4c.Android.Fw.Lib.props" ]] || fail_verify "nupkg missing build props"
+[[ -f "$verify_dir/build/Icu4c.Android.Fw.Lib.targets" ]] || fail_verify "nupkg missing build targets"
+[[ -f "$verify_dir/build/assets/icudt${ICU_MAJOR}l.dat" ]] || fail_verify "nupkg missing build/assets/icudt${ICU_MAJOR}l.dat"
 for abi in "${ABI_LIST[@]}"; do
     abi="$(echo "$abi" | xargs)"
     [[ -z "$abi" ]] && continue
     for library in libc++_shared.so libicuuc.so libicui18n.so libicudata.so; do
         [[ -f "$verify_dir/build/native/$abi/$library" ]] \
-            || die "nupkg missing build/native/$abi/$library"
+            || fail_verify "nupkg missing build/native/$abi/$library"
     done
 done
 rm -rf "$verify_dir"
