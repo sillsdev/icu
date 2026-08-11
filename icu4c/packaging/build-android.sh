@@ -25,7 +25,7 @@ udata_setCommonData). Shared libraries are linked with unversioned SONAMEs so
 APK packaging of lib*.so alone works with the Android loader.
 
 Options:
-  --arch=LIST       Comma-separated ABIs: x86_64, arm64-v8a (default: x86_64)
+  --arch=LIST       Comma-separated ABIs: x86_64, arm64-v8a, armeabi-v7a (default: x86_64)
   --api=LEVEL       Minimum Android API (default: 21)
   --clean           Remove all generated Android ICU output
   --clean-arch=LIST Remove generated output for the listed ABI(s)
@@ -90,11 +90,23 @@ resolve_ndk() {
     die "Android NDK not found. Set ANDROID_NDK_HOME or ANDROID_HOME."
 }
 
+# Clang/configure triple for the ABI.
 arch_to_target() {
     case "$1" in
         x86_64) echo x86_64-linux-android ;;
         arm64-v8a) echo aarch64-linux-android ;;
-        *) die "Unsupported ABI '$1'. Supported ABIs: x86_64, arm64-v8a" ;;
+        armeabi-v7a) echo armv7a-linux-androideabi ;;
+        *) die "Unsupported ABI '$1'. Supported ABIs: x86_64, arm64-v8a, armeabi-v7a" ;;
+    esac
+}
+
+# NDK sysroot usr/lib/<dir> name (differs from the clang triple for 32-bit ARM).
+arch_to_sysroot_lib() {
+    case "$1" in
+        x86_64) echo x86_64-linux-android ;;
+        arm64-v8a) echo aarch64-linux-android ;;
+        armeabi-v7a) echo arm-linux-androideabi ;;
+        *) die "Unsupported ABI '$1'. Supported ABIs: x86_64, arm64-v8a, armeabi-v7a" ;;
     esac
 }
 
@@ -108,8 +120,8 @@ parallel_jobs() {
 }
 
 copy_ndk_cpp_shared() {
-    local ndk="$1" host_tag="$2" target="$3" install_dir="$4"
-    local cxx_lib="$ndk/toolchains/llvm/prebuilt/$host_tag/sysroot/usr/lib/$target/libc++_shared.so"
+    local ndk="$1" host_tag="$2" sysroot_lib="$3" install_dir="$4"
+    local cxx_lib="$ndk/toolchains/llvm/prebuilt/$host_tag/sysroot/usr/lib/$sysroot_lib/libc++_shared.so"
     [[ -f "$cxx_lib" ]] || die "NDK libc++ not found: $cxx_lib"
     cp -f "$cxx_lib" "$install_dir/"
 }
@@ -156,8 +168,9 @@ install_icu_data_file() {
 
 build_android_arch() {
     local abi="$1" ndk="$2" host_tag="$3"
-    local target build_dir install_dir toolchain
+    local target sysroot_lib build_dir install_dir toolchain
     target="$(arch_to_target "$abi")"
+    sysroot_lib="$(arch_to_sysroot_lib "$abi")"
     build_dir="$OUTPUT_DIR/build/android/$abi"
     install_dir="$OUTPUT_DIR/$abi"
     toolchain="$ndk/toolchains/llvm/prebuilt/$host_tag"
@@ -195,7 +208,7 @@ build_android_arch() {
     else
         die "Missing stubdata directory in $build_dir"
     fi
-    copy_ndk_cpp_shared "$ndk" "$host_tag" "$target" "$install_dir"
+    copy_ndk_cpp_shared "$ndk" "$host_tag" "$sysroot_lib" "$install_dir"
     install_android_apk_libs "$install_dir"
     popd >/dev/null
 }

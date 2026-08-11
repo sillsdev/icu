@@ -40,7 +40,7 @@ if (-not $bash) {
 
 $archList = ($Arch | ForEach-Object { "$_".Trim() } | Where-Object { $_ }) -join ','
 if (-not $archList) {
-    throw 'At least one -Arch value is required (x86_64 and/or arm64-v8a).'
+    throw 'At least one -Arch value is required (x86_64, arm64-v8a, and/or armeabi-v7a).'
 }
 
 $arguments = @($bashScript, "--arch=$archList", "--api=$ApiLevel")

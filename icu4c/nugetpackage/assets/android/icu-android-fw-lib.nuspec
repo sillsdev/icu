@@ -13,14 +13,14 @@
 		<description>ICU - International Components for Unicode
 
 This package contains the FieldWorks version of ICU4C shared libraries for Android
-(x86_64 and arm64-v8a), including libc++_shared.so and the ICU data file for MAUI /
-.NET Android apps.
+(x86_64, arm64-v8a, and armeabi-v7a), including libc++_shared.so and the ICU data
+file for MAUI / .NET Android apps.
 
 The major version number of the nuget package corresponds to the ICU release.
 		</description>
 		<language>en-US</language>
 		<releaseNotes>
-$version$ - FieldWorks ICU Android natives (x86_64, arm64-v8a) plus icudt*l.dat
+$version$ - FieldWorks ICU Android natives (x86_64, arm64-v8a, armeabi-v7a) plus icudt*l.dat
 		</releaseNotes>
 		<references/>
 	</metadata>

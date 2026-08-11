@@ -10,7 +10,7 @@ INPUT_DIR="${INPUT_DIR:-$ICU4C_DIR/out/android-icu}"
 ASSETS_DIR="$ICU4C_DIR/nugetpackage/assets/android"
 OUTPUT_DIR="${OUTPUT_DIR:-$ICU4C_DIR/nugetpackage}"
 PKG_VERSION=""
-ABIS="${ABIS:-x86_64,arm64-v8a}"
+ABIS="${ABIS:-x86_64,arm64-v8a,armeabi-v7a}"
 
 usage() {
     cat <<EOF
@@ -20,7 +20,7 @@ Options:
   --version=VERSION   Package version (required), e.g. 70.1.123
   --input=DIR         Android ICU output (default: icu4c/out/android-icu)
   --output=DIR        Directory for the .nupkg (default: icu4c/nugetpackage)
-  --abis=LIST         Comma-separated ABIs to include (default: x86_64,arm64-v8a)
+  --abis=LIST         Comma-separated ABIs to include (default: x86_64,arm64-v8a,armeabi-v7a)
   --help              Show this help
 EOF
 }
@@ -113,8 +113,8 @@ cat > "$STAGE_DIR/Icu4c.Android.Fw.Lib.csproj" <<EOF
     <PackageProjectUrl>https://github.com/sillsdev/icu</PackageProjectUrl>
     <PackageLicenseFile>LICENSE</PackageLicenseFile>
     <PackageTags>native;android;maui</PackageTags>
-    <Description>FieldWorks ICU4C shared libraries for Android (x86_64, arm64-v8a) for MAUI / .NET Android apps. The major version number corresponds to the ICU release.</Description>
-    <PackageReleaseNotes>$PKG_VERSION - FieldWorks ICU $ICU_MAJOR Android natives (x86_64, arm64-v8a) plus icudt${ICU_MAJOR}l.dat</PackageReleaseNotes>
+    <Description>FieldWorks ICU4C shared libraries for Android (x86_64, arm64-v8a, armeabi-v7a) for MAUI / .NET Android apps. The major version number corresponds to the ICU release.</Description>
+    <PackageReleaseNotes>$PKG_VERSION - FieldWorks ICU $ICU_MAJOR Android natives (x86_64, arm64-v8a, armeabi-v7a) plus icudt${ICU_MAJOR}l.dat</PackageReleaseNotes>
     <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
   </PropertyGroup>
   <ItemGroup>

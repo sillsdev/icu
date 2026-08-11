@@ -25,7 +25,7 @@ installed `ndk/<version>` directory.
 
 ```bash
 export ANDROID_NDK_HOME=/opt/android-ndk-r27
-bash ./icu4c/packaging/build-android.sh --arch=x86_64,arm64-v8a
+bash ./icu4c/packaging/build-android.sh --arch=x86_64,arm64-v8a,armeabi-v7a
 ```
 
 On Windows, install Git for Windows and an Android NDK installed for Windows.
@@ -33,9 +33,8 @@ From PowerShell, run:
 
 ```powershell
 $env:ANDROID_NDK_HOME = 'C:\Android\Sdk\ndk\27.0.12077973'
-.\icu4c\packaging\build-android.ps1 -Arch x86_64,arm64-v8a
+.\icu4c\packaging\build-android.ps1 -Arch x86_64,arm64-v8a,armeabi-v7a
 ```
-
 The PowerShell wrapper deliberately invokes Git Bash. It does not use WSL:
 WSL must run `bash ./icu4c/packaging/build-android.sh` and use an NDK
 installed for Linux inside WSL. A Windows NDK cannot be reused from WSL, and a
@@ -47,8 +46,8 @@ Linux NDK cannot be used by Git Bash.
 # Default fast validation ABI
 bash ./icu4c/packaging/build-android.sh
 
-# Select an API level and both supported ABIs
-bash ./icu4c/packaging/build-android.sh --api=21 --arch=x86_64,arm64-v8a
+# Select an API level and all supported ABIs
+bash ./icu4c/packaging/build-android.sh --api=21 --arch=x86_64,arm64-v8a,armeabi-v7a
 
 # Delete one ABI's build and installed output before rebuilding it
 bash ./icu4c/packaging/build-android.sh --clean-arch=x86_64 --arch=x86_64
@@ -57,9 +56,9 @@ bash ./icu4c/packaging/build-android.sh --clean-arch=x86_64 --arch=x86_64
 bash ./icu4c/packaging/build-android.sh --clean
 ```
 
-Supported ABI values are `x86_64` and `arm64-v8a`. Use `--help` for the full
-command reference. The generated `icu4c/out/` directory is already ignored by
-this repository.
+Supported ABI values are `x86_64`, `arm64-v8a`, and `armeabi-v7a`. Use `--help`
+for the full command reference. The generated `icu4c/out/` directory is already
+ignored by this repository.
 
 ## Output layout
 
@@ -74,6 +73,11 @@ icu4c/out/android-icu/
     libicui18n.so
     libicudata.so
   arm64-v8a/
+    libc++_shared.so
+    libicuuc.so
+    libicui18n.so
+    libicudata.so
+  armeabi-v7a/
     libc++_shared.so
     libicuuc.so
     libicui18n.so
@@ -104,7 +108,8 @@ The major version of the package matches the ICU release (same scheme as
 ```
 
 The package’s MSBuild targets add `AndroidNativeLibrary` entries for
-`x86_64` and `arm64-v8a` and embed `icudt70l.dat` as an `AndroidAsset`.
+`x86_64`, `arm64-v8a`, and `armeabi-v7a` and embed `icudt70l.dat` as an
+`AndroidAsset`.
 Consumers do not need manual `AndroidNativeLibrary` / `AndroidAsset`
 ItemGroups. The props file also stamps `IcuFwAndroidMajorVersion` for
 consumers that need the ICU major (for example aligning

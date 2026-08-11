@@ -1,7 +1,7 @@
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
 	<!--
 		Wire FieldWorks Android ICU natives and data into .NET Android / MAUI apps.
-		ABI is inferred from the parent folder name (x86_64, arm64-v8a).
+		ABI is inferred from the parent folder name (x86_64, arm64-v8a, armeabi-v7a).
 	-->
 	<ItemGroup Condition="'$(TargetPlatformIdentifier)' == 'android'">
 		<AndroidNativeLibrary
@@ -10,6 +10,9 @@
 		<AndroidNativeLibrary
 			Include="$(IcuFwAndroidNativeDir)arm64-v8a/*.so"
 			Condition="Exists('$(IcuFwAndroidNativeDir)arm64-v8a/libicuuc.so')" />
+		<AndroidNativeLibrary
+			Include="$(IcuFwAndroidNativeDir)armeabi-v7a/*.so"
+			Condition="Exists('$(IcuFwAndroidNativeDir)armeabi-v7a/libicuuc.so')" />
 
 		<AndroidAsset Include="$(IcuFwAndroidAssetsDir)icudt$(IcuFwAndroidMajorVersion)l.dat"
 			Condition="Exists('$(IcuFwAndroidAssetsDir)icudt$(IcuFwAndroidMajorVersion)l.dat')">
