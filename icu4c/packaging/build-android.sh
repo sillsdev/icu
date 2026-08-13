@@ -119,6 +119,16 @@ parallel_jobs() {
     nproc 2>/dev/null || sysctl -n hw.ncpu 2>/dev/null || echo 4
 }
 
+# Refresh config.status in the current build dir when reusing a configured
+# tree (e.g. restored from a CI cache). git checkout rewrites the mtimes of
+# configure and uvernum.h to "now", making them newer than the cached
+# config.status; ICU's Makefile then treats config.status as stale (see the
+# `config.status:` rule in source/Makefile.in) and aborts. Touching it keeps
+# the existing configuration and lets the incremental build proceed.
+refresh_config_status() {
+    [[ -f config.status ]] && touch config.status
+}
+
 copy_ndk_cpp_shared() {
     local ndk="$1" host_tag="$2" sysroot_lib="$3" install_dir="$4"
     local cxx_lib="$ndk/toolchains/llvm/prebuilt/$host_tag/sysroot/usr/lib/$sysroot_lib/libc++_shared.so"
@@ -150,6 +160,7 @@ build_host_icu() {
             --prefix="$HOST_BUILD_DIR/icu_build"
     else
         log "Host ICU already configured; rebuilding incrementally"
+        refresh_config_status
     fi
     make -j"$(parallel_jobs)"
     [[ -f config/icucross.mk ]] || die "Host build did not produce config/icucross.mk"
@@ -191,6 +202,8 @@ build_android_arch() {
             --enable-static=no --enable-shared=yes --enable-tests=no \
             --enable-samples=no --enable-extras=no --enable-draft=yes \
             --with-data-packaging=archive
+    else
+        refresh_config_status
     fi
     # By default ICU gives its shared libraries versioned SONAMEs (e.g.
     # libicuuc.so.70) and records those versioned names in each library's
