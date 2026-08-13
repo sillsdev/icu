@@ -28,17 +28,18 @@ export ANDROID_NDK_HOME=/opt/android-ndk-r27
 bash ./icu4c/packaging/build-android.sh --arch=x86_64,arm64-v8a,armeabi-v7a
 ```
 
-On Windows, install Git for Windows and an Android NDK installed for Windows.
-From PowerShell, run:
+On Windows, install Git for Windows and an Android NDK installed for Windows,
+then run the script from Git Bash:
 
-```powershell
-$env:ANDROID_NDK_HOME = 'C:\Android\Sdk\ndk\27.0.12077973'
-.\icu4c\packaging\build-android.ps1 -Arch x86_64,arm64-v8a,armeabi-v7a
+```bash
+export ANDROID_NDK_HOME='C:\Android\Sdk\ndk\27.0.12077973'
+bash ./icu4c/packaging/build-android.sh --arch=x86_64,arm64-v8a,armeabi-v7a
 ```
-The PowerShell wrapper deliberately invokes Git Bash. It does not use WSL:
-WSL must run `bash ./icu4c/packaging/build-android.sh` and use an NDK
-installed for Linux inside WSL. A Windows NDK cannot be reused from WSL, and a
-Linux NDK cannot be used by Git Bash.
+
+Git Bash and WSL need different NDKs: a Windows NDK cannot be reused from WSL,
+and a Linux NDK cannot be used by Git Bash. Under WSL, run the same
+`bash ./icu4c/packaging/build-android.sh` command with an NDK installed for
+Linux inside WSL.
 
 ## Controls and cleanup
 

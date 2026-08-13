@@ -5,8 +5,8 @@
 
 set -euo pipefail
 
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-ICU4C_DIR="$(cd "$SCRIPT_DIR/.." && pwd)"
+SCRIPT_DIR="$(realpath "$(dirname "${BASH_SOURCE[0]}")")"
+ICU4C_DIR="$(realpath "$SCRIPT_DIR/..")"
 ICU_SRC_DIR="$ICU4C_DIR/source"
 OUTPUT_DIR="$ICU4C_DIR/out/android-icu"
 HOST_BUILD_DIR="$OUTPUT_DIR/build/host"
@@ -192,8 +192,11 @@ build_android_arch() {
             --enable-samples=no --enable-extras=no --enable-draft=yes \
             --with-data-packaging=archive
     fi
-    # Override mh-linux SONAME (MIDDLE_SO_TARGET / libicu*.so.N) so DT_NEEDED
-    # entries match the unversioned lib*.so names Android packages into the APK.
+    # By default ICU gives its shared libraries versioned SONAMEs (e.g.
+    # libicuuc.so.70) and records those versioned names in each library's
+    # dependency list. Android only packages the unversioned lib*.so files
+    # into the APK, so override the SONAME to the unversioned name; otherwise
+    # the loader looks for libicuuc.so.70 and fails.
     make -j"$(parallel_jobs)" \
         'LD_SONAME=-Wl,-soname -Wl,$(notdir $(SO_TARGET))'
 

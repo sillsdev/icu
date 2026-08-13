@@ -10,7 +10,7 @@ INPUT_DIR="${INPUT_DIR:-$ICU4C_DIR/out/android-icu}"
 ASSETS_DIR="$ICU4C_DIR/nugetpackage/assets/android"
 OUTPUT_DIR="${OUTPUT_DIR:-$ICU4C_DIR/nugetpackage}"
 PKG_VERSION=""
-ABIS="${ABIS:-x86_64,arm64-v8a,armeabi-v7a}"
+ARCHS="${ARCHS:-x86_64,arm64-v8a,armeabi-v7a}"
 
 usage() {
     cat <<EOF
@@ -20,7 +20,7 @@ Options:
   --version=VERSION   Package version (required), e.g. 70.1.123
   --input=DIR         Android ICU output (default: icu4c/out/android-icu)
   --output=DIR        Directory for the .nupkg (default: icu4c/nugetpackage)
-  --abis=LIST         Comma-separated ABIs to include (default: x86_64,arm64-v8a,armeabi-v7a)
+  --arch=LIST         Comma-separated ABIs to include (default: x86_64,arm64-v8a,armeabi-v7a)
   --help              Show this help
 EOF
 }
@@ -34,7 +34,7 @@ for arg in "$@"; do
         --version=*) PKG_VERSION="${arg#*=}" ;;
         --input=*) INPUT_DIR="${arg#*=}" ;;
         --output=*) OUTPUT_DIR="${arg#*=}" ;;
-        --abis=*) ABIS="${arg#*=}" ;;
+        --arch=*) ARCHS="${arg#*=}" ;;
         *) die "Unknown option: $arg" ;;
     esac
 done
@@ -69,8 +69,8 @@ rm -f "$STAGE_DIR/build/Icu4c.Android.Fw.Lib.props.bak"
 grep -q ">${ICU_MAJOR}</IcuFwAndroidMajorVersion>" "$STAGE_DIR/build/Icu4c.Android.Fw.Lib.props" \
     || die "Failed to stamp IcuFwAndroidMajorVersion=${ICU_MAJOR} into props"
 
-IFS=',' read -ra ABI_LIST <<< "$ABIS"
-for abi in "${ABI_LIST[@]}"; do
+IFS=',' read -ra ARCH_LIST <<< "$ARCHS"
+for abi in "${ARCH_LIST[@]}"; do
     abi="$(echo "$abi" | xargs)"
     [[ -z "$abi" ]] && continue
     src="$INPUT_DIR/$abi"
@@ -91,7 +91,7 @@ pack_items="$(mktemp "${TMPDIR:-/tmp}/icu-android-nuget-items.XXXXXX")"
     echo '    <None Include="build/Icu4c.Android.Fw.Lib.props" Pack="true" PackagePath="build/" />'
     echo '    <None Include="build/Icu4c.Android.Fw.Lib.targets" Pack="true" PackagePath="build/" />'
     echo '    <None Include="build/assets/*" Pack="true" PackagePath="build/assets/" />'
-    for abi in "${ABI_LIST[@]}"; do
+    for abi in "${ARCH_LIST[@]}"; do
         abi="$(echo "$abi" | xargs)"
         [[ -z "$abi" ]] && continue
         echo "    <None Include=\"build/native/${abi}/*\" Pack=\"true\" PackagePath=\"build/native/${abi}/\" />"
@@ -145,7 +145,7 @@ fail_verify() {
 [[ -f "$verify_dir/build/Icu4c.Android.Fw.Lib.props" ]] || fail_verify "nupkg missing build props"
 [[ -f "$verify_dir/build/Icu4c.Android.Fw.Lib.targets" ]] || fail_verify "nupkg missing build targets"
 [[ -f "$verify_dir/build/assets/icudt${ICU_MAJOR}l.dat" ]] || fail_verify "nupkg missing build/assets/icudt${ICU_MAJOR}l.dat"
-for abi in "${ABI_LIST[@]}"; do
+for abi in "${ARCH_LIST[@]}"; do
     abi="$(echo "$abi" | xargs)"
     [[ -z "$abi" ]] && continue
     for library in libc++_shared.so libicuuc.so libicui18n.so libicudata.so; do

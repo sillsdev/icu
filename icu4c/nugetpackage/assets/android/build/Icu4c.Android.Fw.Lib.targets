@@ -1,8 +1,4 @@
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-	<!--
-		Wire FieldWorks Android ICU natives and data into .NET Android / MAUI apps.
-		ABI is inferred from the parent folder name (x86_64, arm64-v8a, armeabi-v7a).
-	-->
 	<ItemGroup Condition="'$(TargetPlatformIdentifier)' == 'android'">
 		<AndroidNativeLibrary
 			Include="$(IcuFwAndroidNativeDir)x86_64/*.so"
