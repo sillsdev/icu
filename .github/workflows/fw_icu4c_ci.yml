@@ -98,7 +98,7 @@ jobs:
     - name: Publish nuget packages
       if: github.event_name == 'push'
       working-directory: icu4c
-      run: nuget push **/*.nupkg -Source 'https://api.nuget.org/v3/index.json' -ApiKey ${{ secrets.ICU_NUGET_API_KEY }}
+      run: nuget push **/*.nupkg -Source 'https://api.nuget.org/v3/index.json' -ApiKey ${{ secrets.SILLSDEV_PUBLISH_NUGET_ORG }}
 
 
   # Run ICU4C tests with SIL mod and stub data
@@ -124,6 +124,79 @@ jobs:
           cd test/cintltst
           echo 'Running ICU4C cintltst'
           make -j2 check
+
+  android-build:
+    needs: set-version-number
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 1
+          sparse-checkout-cone-mode: false
+          sparse-checkout: |
+            icu4c/packaging
+            icu4c/source
+            icu4c/nugetpackage/assets/android
+            icu4c/LICENSE
+
+      - name: Set up Android SDK command-line tools
+        uses: android-actions/setup-android@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v6
+        with:
+          dotnet-version: 8.0.x
+
+      - name: Install Android NDK
+        run: |
+          sdkmanager --install 'ndk;27.0.12077973'
+          echo "ANDROID_NDK_HOME=$ANDROID_HOME/ndk/27.0.12077973" >> "$GITHUB_ENV"
+
+      - name: Cache Android ICU build output
+        uses: actions/cache@v6
+        with:
+          path: icu4c/out/android-icu
+          key: android-icu-${{ runner.os }}-${{ hashFiles('icu4c/packaging/build-android.sh', 'icu4c/packaging/pack-android-nuget.sh', 'icu4c/source/common/unicode/uvernum.h', 'icu4c/source/configure') }}
+
+      - name: Build Android ICU libraries
+        run: |
+          set -xeo pipefail
+          bash icu4c/packaging/build-android.sh --arch=x86_64,arm64-v8a,armeabi-v7a
+
+      - name: Verify Android ICU output contract
+        run: |
+          set -xeuo pipefail
+          major=$(grep -oP '^#define U_ICU_VERSION_MAJOR_NUM \K[0-9]+' icu4c/source/common/unicode/uvernum.h)
+          test -f "icu4c/out/android-icu/icudt${major}l.dat"
+          for abi in x86_64 arm64-v8a armeabi-v7a; do
+            for library in libc++_shared.so libicuuc.so libicui18n.so libicudata.so; do
+              test -f "icu4c/out/android-icu/$abi/$library"
+            done
+          done
+
+      - name: Pack Android NuGet package
+        run: |
+          set -xeuo pipefail
+          bash icu4c/packaging/pack-android-nuget.sh \
+            --version="${{ needs.set-version-number.outputs.version }}" \
+            --output=icu4c/nugetpackage
+
+      - name: Upload Android NuGet package
+        uses: actions/upload-artifact@v7
+        with:
+          name: android-nuget
+          path: icu4c/nugetpackage/Icu4c.Android.Fw.Lib.*.nupkg
+          if-no-files-found: error
+
+      - name: Publish Android NuGet package
+        if: github.event_name == 'push'
+        run: |
+          set -xeuo pipefail
+          dotnet nuget push icu4c/nugetpackage/Icu4c.Android.Fw.Lib.*.nupkg \
+            --source 'https://api.nuget.org/v3/index.json' \
+            --api-key '${{ secrets.SILLSDEV_PUBLISH_NUGET_ORG }}' \
+            --skip-duplicate
 
   debian-packaging:
     needs: set-version-number

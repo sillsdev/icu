@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<package>
+	<metadata>
+		<id>Icu4c.Android.Fw.Lib</id>
+		<version>$version$</version>
+		<authors>SIL International</authors>
+		<copyright>Copyright (c) 2016-2026 SIL International</copyright>
+		<license type="file">LICENSE</license>
+		<projectUrl>https://github.com/sillsdev/icu</projectUrl>
+		<requireLicenseAcceptance>false</requireLicenseAcceptance>
+		<tags>native android maui</tags>
+		<summary>ICU - International Components for Unicode (Android)</summary>
+		<description>ICU - International Components for Unicode
+
+This package contains the FieldWorks version of ICU4C shared libraries for Android
+(x86_64, arm64-v8a, and armeabi-v7a), including libc++_shared.so and the ICU data
+file for MAUI / .NET Android apps.
+
+The major version number of the nuget package corresponds to the ICU release.
+		</description>
+		<language>en-US</language>
+		<releaseNotes>
+$version$ - FieldWorks ICU Android natives (x86_64, arm64-v8a, armeabi-v7a) plus icudt*l.dat
+		</releaseNotes>
+		<references/>
+	</metadata>
+	<files>
+		<file src="LICENSE" target="" />
+		<file src="build/**/*" target="build" />
+	</files>
+</package>
