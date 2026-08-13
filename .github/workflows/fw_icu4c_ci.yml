@@ -98,7 +98,7 @@ jobs:
     - name: Publish nuget packages
       if: github.event_name == 'push'
       working-directory: icu4c
-      run: nuget push **/*.nupkg -Source 'https://api.nuget.org/v3/index.json' -ApiKey ${{ secrets.ICU_NUGET_API_KEY }}
+      run: nuget push **/*.nupkg -Source 'https://api.nuget.org/v3/index.json' -ApiKey ${{ secrets.SILLSDEV_PUBLISH_NUGET_ORG }}
 
 
   # Run ICU4C tests with SIL mod and stub data
@@ -195,7 +195,7 @@ jobs:
           set -xeuo pipefail
           dotnet nuget push icu4c/nugetpackage/Icu4c.Android.Fw.Lib.*.nupkg \
             --source 'https://api.nuget.org/v3/index.json' \
-            --api-key '${{ secrets.ICU_NUGET_API_KEY }}' \
+            --api-key '${{ secrets.SILLSDEV_PUBLISH_NUGET_ORG }}' \
             --skip-duplicate
 
   debian-packaging:
